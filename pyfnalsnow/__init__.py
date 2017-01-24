@@ -17,12 +17,18 @@ types = {
     'task':       'Task',
 }
 
+modules = {
+    'incident':    'pyfnalsnow.Incident',
+    'sc_req_item': 'pyfnalsnow.RITM',
+}
+
 #########################################################################
 ### Declarations ########################################################
 #########################################################################
 
 import pysnow, re, yaml
-import pyfnalsnow.RITM
+import pyfnalsnow.Incident, pyfnalsnow.RITM
+import sys
 
 #########################################################################
 ### Configuration Subroutines ###########################################
@@ -71,21 +77,27 @@ def connect():
 ### Reporting Functions #################################################
 #########################################################################
 
-def tktStringBase(tkt):
+def tktSwitch(tkt, function):
     """
+    Black Magic Ahoy!  Given a function name and a ticket, invokes that
+    function *from the matching class*.  
     """
-    try:
-        number = tkt['number']
-    except:
-        raise 'no ticket number in ticket'
-
+    try:    number = tkt['number']
+    except: raise Exception('no ticket number in ticket')
     type = tktType(number)
-    if type == 'sc_req_item': return pyfnalsnow.RITM.tktStringBase(tkt)
-    else:                     raise 'unsupported type: %s' % type
+
+    if type in modules: 
+        return eval("%s.%s" % (modules[type], function))(tkt)
+    else: 
+        raise Exception('unsupported type: %s' % type)
+
+def tktIsResolved(tkt): return tktSwitch(tkt, 'tktIsResolved')
+def tktStringBase(tkt): return tktSwitch(tkt, 'tktStringBase')
 
 #########################################################################
 ### ServiceNow Searching ################################################
 #########################################################################
+
 
 def groupById(id):
     """
@@ -95,10 +107,30 @@ def groupById(id):
     e = q.get_one()
     return e
 
+def ritmByNumber(number):
+    """
+    """
+    r = snow.query(table='sc_req_item', query={'number': number})
+    ritm = r.get_one()
+    return ritm
+
 def userById(id):
     """
+    Queries and returns a single sys_user entry based on a user sys_id.
     """
     q = snow.query(table='sys_user', query={ 'sys_id': id })
+    return q.get_one()
+
+def userByName(name):
+    """
+    """
+    q = snow.query(table='sys_user', query={ 'name': name })
+    return q.get_one()
+
+def userByUsername(name):
+    """
+    """
+    q = snow.query(table='sys_user', query={ 'user_name': name })
     return q.get_one()
 
 def tktJournalEntries(tkt):

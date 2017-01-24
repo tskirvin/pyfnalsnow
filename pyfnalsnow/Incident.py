@@ -1,5 +1,5 @@
 """ 
-pyfnalsnow.RITM
+pyfnalsnow.Incident
 """
 
 #########################################################################
@@ -16,4 +16,6 @@ from pyfnalsnow.ticket import tktStringBase
 ### Subroutines #########################################################
 #########################################################################
 
-def tktIsResolved(tkt): return False
+def tktIsResolved(tkt):
+    if tktState(tkt) >= 4: return True
+    else:                  return False

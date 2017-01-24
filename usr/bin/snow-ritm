@@ -42,11 +42,9 @@ def main():
 
     config = pyfnalsnow.pyfnalsnow_config(opt.config)
     snow = pyfnalsnow.connect()
+    ritm = pyfnalsnow.ritmByNumber(number)
 
-    # these should be abstracted in the module
-    r = snow.query(table='sc_req_item', query={'number': number})
-    ritm = r.get_one()
-
+    # add magic to select the printing type
     print '\n'.join(pyfnalsnow.tktStringBase(ritm))
 
     sys.exit(0)
