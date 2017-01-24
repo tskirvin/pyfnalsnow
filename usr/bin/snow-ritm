@@ -1,0 +1,111 @@
+#!/usr/bin/python
+
+#########################################################################
+### Configuration #######################################################
+#########################################################################
+
+config_file = '/etc/snow/config.yaml'
+
+#########################################################################
+### Declarations ########################################################
+#########################################################################
+
+import pyfnalsnow
+import optparse, pprint, sys
+
+description = "read a sc_req_item object from SNOW"
+usage = "%prog [options] subject"
+
+#########################################################################
+### Subroutines #########################################################
+#########################################################################
+
+#########################################################################
+### main () #############################################################
+#########################################################################
+
+def main():
+    global p
+    p = optparse.OptionParser (usage = usage, description = description)
+    p.add_option ('--debug', dest='debug', action='store_true', default=False)
+    p.add_option ('--config', dest='config', action='store',
+        default=config_file)
+
+    global opt
+    opt, args = p.parse_args()
+
+    if len(args) < 1:
+        p.print_help()
+        sys.exit(-1)
+
+    number = pyfnalsnow.tktNumberParse(args[0])
+
+    config = pyfnalsnow.pyfnalsnow_config(opt.config)
+    snow = pyfnalsnow.connect()
+
+    # these should be abstracted in the module
+    r = snow.query(table='sc_req_item', query={'number': number})
+    ritm = r.get_one()
+
+    print '\n'.join(pyfnalsnow.tktStringBase(ritm))
+
+    sys.exit(0)
+
+if __name__ == '__main__':
+    main()
+
+#########################################################################
+### POD Documentation ###################################################
+#########################################################################
+
+"""
+
+=head1 NAME
+
+keytab-request - request a keytab via SNOW REST API
+
+=head1 SYNOPSIS
+
+B<keytab-request> example.fnal.gov.invalid
+
+=head1 USAGE
+
+keytab-request uses Service Now to request a Kerberos keytab.  On the
+back-end, this sends an email to the krb5 admins, who then send an email
+with the instructions on how to create the keytab; this process usually
+involves filling out a form, but this is easier.
+
+For each host, we print out the associated REQ and RITM number.  These
+*shouldn't* be necessary, because mail will be sent to fef-sss@fnal.gov
+when the request is fulfilled, but it may be helpful for tracking
+purposes.
+
+=head1 OPTIONS
+
+=over 4
+
+=item --config CONFIG_FILE
+
+Where should we load our SNOW config data?  Defaults to
+F</etc/snow/config.yaml>.
+
+=item --debug
+
+If set, prints some debugging data.
+
+=back
+
+=head1 AUTHOR
+
+Tim Skirvin <tskirvin@fnal.gov>
+
+=head1 COPYRIGHT
+
+Copyright 2016, Fermi National Accelerator Laboratory
+
+This program is free software; you may redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
+"""
