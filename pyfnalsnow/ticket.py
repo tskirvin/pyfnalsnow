@@ -28,6 +28,8 @@ wrap_defaults = {'minWidth': 20, 'prefix': '  ', 'width': 80}
 
 def formatDate(string):
     """
+    Takes a date from a SNOW date field, parses it, and returns in a
+    consistent format.
     """
 
     d = iso8601.parse_date("%sZ" % string)
@@ -51,13 +53,13 @@ def formatTextField(field, value, **kwargs):
     """
 
     minWidth = wrap_defaults['minWidth']
-    if minWidth in kwargs: minWidth = kwargs['minWidth']
+    if 'minWidth' in kwargs: minWidth = kwargs['minWidth']
 
     prefix = wrap_defaults['prefix']
-    if prefix in kwargs: prefix = kwargs['prefix']
+    if 'prefix' in kwargs: prefix = kwargs['prefix']
 
     width = wrap_defaults['width']
-    if prefix in kwargs: prefix = kwargs['width']
+    if 'width' in kwargs: width = kwargs['width']
 
     if value: v = value
     else:     v = '*unknown*'
@@ -78,32 +80,40 @@ def formatTextField(field, value, **kwargs):
 
 def tktStringBase(tkt):
     """
+    Return a printable array containing basic information about a given
+    ticket.  This information is pulled from other tktString calls:
+    tktStringPrimary, tktStringRequestor, tktStringAssignee,
+    tktStringDescription, tktStringJournal, and tktStringResolution.
     """
 
     ret = []
-    ret.extend(tktStringPrimary(tkt))
+    ret.extend(pyfnalsnow.tktStringPrimary(tkt))
     ret.append('')
 
-    ret.extend(tktStringRequestor(tkt))
+    ret.extend(pyfnalsnow.tktStringRequestor(tkt))
     ret.append('')
 
-    ret.extend(tktStringAssignee(tkt))
+    ret.extend(pyfnalsnow.tktStringAssignee(tkt))
     ret.append('')
 
-    ret.extend(tktStringDescription(tkt))
+    ret.extend(pyfnalsnow.tktStringDescription(tkt))
     ret.append('')
 
-    # ret.extend(tktStringJournal(tkt))
-    # ret.append('')
+    ret.extend(pyfnalsnow.tktStringJournal(tkt))
+    ret.append('')
 
     if pyfnalsnow.tktIsResolved(tkt):
-        ret.extend(tktStringResolution(tkt))
+        ret.extend(pyfnalsnow.tktStringResolution(tkt))
         ret.append('')
 
     return ret
 
 def tktStringAssignee(tkt):
     """
+    Return a printable array containing assignee information for a ticket:
+    the assigned group, the assigned name, and the last time the ticket
+    was updated.  Everything is run through formatTextField for a
+    consistent layout.
     """
 
     extra = {}
@@ -116,8 +126,34 @@ def tktStringAssignee(tkt):
 
     return ret
 
+def tktStringAudit(tkt):
+    """
+    Does not work yet.
+    """
+
+    return []
+
+def tktStringDebug(tkt):
+    """
+    Returns a printable array containing all fields and values in this
+    ticket, run through formatTextField for a consistent layout.
+    """
+    ret = []
+    ret.append('== %s (%s) ==' % (tkt['number'], tkt['sys_id']))
+    width=0
+    for key in tkt:
+        if len(key) > width: width = len(key)
+
+    for key in sorted(tkt):
+        ret.extend(formatTextField(key, tkt[key], \
+            minWidth=width + 1, prefix=''))
+
+    return ret
+
 def tktStringDescription(tkt):
     """
+    Returns a printable array containing the ticket 'description' field,
+    run through formatText.
     """
     extra = {}
     ret = []
@@ -127,7 +163,14 @@ def tktStringDescription(tkt):
 
 def tktStringJournal(tkt):
     """
+    Returns a printable array of journal entries for this ticket.  Gets
+    the journals using tktJournalEntries.  
+
+    Doesn't work yet.
     """
+
+    return []
+
     extra = {}
     ret = []
     journals = pyfnalsnow.tktJournalEntries(tkt)
@@ -143,6 +186,9 @@ def tktStringJournal(tkt):
 
 def tktStringPrimary(tkt):
     """
+    Returns a printable array of "primary" information about this ticket: 
+    ticket number, summary (short description), status, submitted date,
+    urgency, and priority.
     """
     extra = {'minWidth': 20, 'prefix': '  '}
     ret = []
@@ -158,6 +204,10 @@ def tktStringPrimary(tkt):
     return ret
 
 def tktStringRequestor(tkt):
+    """
+    Returns a printable array of information about the requestor of this
+    ticket, specifically their Name and Email.
+    """
     extra = {}
     ret = []
     
@@ -172,6 +222,8 @@ def tktStringRequestor(tkt):
 
 def tktStringResolution(tkt):
     """
+
+    Not yet complete.
     """
     extra = {}
     ret = []
@@ -183,6 +235,65 @@ def tktStringResolution(tkt):
     # ret.extend(formatTextField('Close Code',  tktResolvedCode(tkt), **extra))
     ret.append('')
     ret.extend(formatText(tkt['close_notes']), **extra)
+
+    return ret
+
+def tktStringShort(tkt):
+    """
+    Like tktStringBase(), but skips the WorkLog data.
+    """
+    ret = []
+    ret.extend(pyfnalsnow.tktStringPrimary(tkt))
+    ret.append('')
+
+    ret.extend(pyfnalsnow.tktStringRequestor(tkt))
+    ret.append('')
+
+    ret.extend(pyfnalsnow.tktStringAssignee(tkt))
+    ret.append('')
+
+    ret.extend(pyfnalsnow.tktStringDescription(tkt))
+    ret.append('')
+
+    if pyfnalsnow.tktIsResolved(tkt):
+        ret.extend(pyfnalsnow.tktStringResolution(tkt))
+        ret.append('')
+
+    return ret
+
+def tktStringSummary(tkt):
+    """
+    Returns a printable string summarizing important data about the given
+    ticket in three lines: number, requestor, assigned group and
+    individual, current status, created/update datetime, and short
+    description.
+    """
+
+    ret = []
+
+    number = tkt['number']
+
+    assignee = userLinkUsername(tkt['assigned_to'])
+    if assignee: assign = assignee
+    else:        assign = '*unassigned*'
+
+    requestor = userLinkUsername(tkt['sys_created_by'])
+    if requestor: request = requestor
+    else:         request = '*unknown*'
+
+    group  = tktAssignedGroup(tkt)
+    status = tktStatus(tkt)
+
+    ret.append ( "%-12.12s %-15.15s %-15.15s %-17.17s %17.17s" %
+        (number, request, assign, group, status) );
+
+    created = formatDate(tktDateSubmit(tkt))
+    updated = formatDate(tktDateUpdate(tkt))
+    ret.append ( " Created: %-20.20s        Updated: %-20.20s" %
+        (created, updated) )
+
+    description = tktSummary(tkt)
+    ret.append ( ' Subject: %-70.70s' % description)
 
     return ret
 
@@ -204,6 +315,13 @@ def userLink(user):
         if 'value' in user:
             u = pyfnalsnow.userById(user['value'])
             return u['name']
+    return user
+
+def userLinkUsername(user):
+    if isinstance(user, dict):
+        if 'value' in user:
+            u = pyfnalsnow.userById(user['value'])
+            return u['user_name']
     return user
 
 def tktAssignedPerson(tkt): return userLink(tkt['assigned_to'])

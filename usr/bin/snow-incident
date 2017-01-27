@@ -13,8 +13,12 @@ config_file = '/etc/snow/config.yaml'
 import pyfnalsnow
 import optparse, pprint, sys
 
-description = "read a sc_req_item object from SNOW"
+description = "read an incident object from SNOW"
 usage = "%prog [options] NUMBER"
+
+#########################################################################
+### Subroutines #########################################################
+#########################################################################
 
 #########################################################################
 ### main () #############################################################
@@ -37,11 +41,10 @@ def main():
         sys.exit(-1)
 
     number = pyfnalsnow.tktNumberParse(args[0])
-
     config = pyfnalsnow.pyfnalsnow_config(opt.config)
     snow = pyfnalsnow.connect()
-    ritm = pyfnalsnow.ritmByNumber(number)
-    print '\n'.join(pyfnalsnow.tktString(ritm, type=opt.string_type))
+    incident = pyfnalsnow.incidentByNumber(number)
+    print '\n'.join(pyfnalsnow.tktString(incident, type=opt.string_type))
 
     sys.exit(0)
 
@@ -56,18 +59,18 @@ if __name__ == '__main__':
 
 =head1 NAME
 
-snow-ritm - print information about a SNOW sc_req_item (RITM)
+snow-incident - print information about a SNOW incident
 
 =head1 SYNOPSIS
 
-B<snow-ritm> RITM456995
+B<snow-incident> INC0802825
 
-B<snow-ritm> RITM456995 --type debug
+B<snow-incident> INC0802825 --type debug
 
 =head1 USAGE
 
-snow-ritm queries Service Now (SNOW) to pull down data about a specific
-sc_req_item object (RITM), and prints the output to STDOUT.  
+snow-incident queries Service Now (SNOW) to pull down data about a specific
+incident, and prints the output to STDOUT.  
 
 =head1 OPTIONS
 

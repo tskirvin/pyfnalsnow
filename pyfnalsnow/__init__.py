@@ -9,6 +9,13 @@
 config_file = '/etc/snow/config.yaml'
 config = {}
 
+cache = {}
+
+modules = {
+    'incident':    'pyfnalsnow.Incident',
+    'sc_req_item': 'pyfnalsnow.RITM',
+}
+
 types = {
     'incident':   'Incident',
     'prjtask':    'Project Task',
@@ -17,18 +24,26 @@ types = {
     'task':       'Task',
 }
 
-modules = {
-    'incident':    'pyfnalsnow.Incident',
-    'sc_req_item': 'pyfnalsnow.RITM',
-}
 
 #########################################################################
 ### Declarations ########################################################
 #########################################################################
 
-import pysnow, re, yaml
+import pysnow, re, sys, yaml
 import pyfnalsnow.Incident, pyfnalsnow.RITM
-import sys
+
+#########################################################################
+### Definitions #########################################################
+#########################################################################
+
+impact = {}
+priority = {}
+urgency = {
+    '1': '1 - Critical',
+    '2': '2 - High',
+    '3': '3 - Medium',
+    '4': '4 - Low',
+}
 
 #########################################################################
 ### Configuration Subroutines ###########################################
@@ -69,15 +84,45 @@ def connect():
         instance=config['servicenow']['instance'],
         user=config['servicenow']['username'],
         password=config['servicenow']['password'],
-        raise_on_empty=True)
+        raise_on_empty=True
+    )
 
     return snow
 
 #########################################################################
-### Reporting Functions #################################################
+### pyfnalsnow wrappers #################################################
 #########################################################################
 
-def tktSwitch(tkt, function):
+def cacheQueryOne(table, query):
+    """
+
+    """
+    if table not in cache: cache[table] = {}
+
+    q = str(query)
+
+    if q in cache[table]: 
+        return cache[table][q]
+    else: 
+        r = snow.query(table=table, query=query)
+        try:
+            result = r.get_one()
+        except:
+            result = '(no match)'
+        cache[table][q] = r.get_one()
+    return cache[table][q]
+
+def tableSwitch(table, function, **args):
+    """
+    Black Magic Ahoy!  Given a function name and a table type, invokes that
+    function *from the matching class*.  
+    """
+    if table in modules: 
+        return eval("%s.%s" % (modules[table], function))(**args)
+    else: 
+        raise Exception('unsupported table: %s' % type)
+
+def typeSwitch(tkt, function):
     """
     Black Magic Ahoy!  Given a function name and a ticket, invokes that
     function *from the matching class*.  
@@ -91,21 +136,60 @@ def tktSwitch(tkt, function):
     else: 
         raise Exception('unsupported type: %s' % type)
 
-def tktIsResolved(tkt): return tktSwitch(tkt, 'tktIsResolved')
-def tktStringBase(tkt): return tktSwitch(tkt, 'tktStringBase')
+#########################################################################
+### Reporting Functions #################################################
+#########################################################################
+
+def printSearchSummary(type, query='group', subquery='open', **args):
+    """
+    """
+    return None
+    
+
+def tktString (tkt, type='base', *args, **kwargs):
+    """
+    """
+
+    if   type == 'audit':   return tktStringAudit(tkt, **kwargs)
+    elif type == 'base':    return tktStringBase(tkt, **kwargs)
+    elif type == 'debug':   return tktStringDebug(tkt, **kwargs)
+    elif type == 'short':   return tktStringShort(tkt, **kwargs)
+    elif type == 'worklog': return tktStringWorklog(tkt, **kwargs)
+    else: 
+        raise Exception('unknown string type: %s' % type)
+
+def tktIsResolved(tkt): return typeSwitch(tkt, 'tktIsResolved')
+
+def tktStringAssignee(tkt):    return typeSwitch(tkt, 'tktStringAssignee')
+def tktStringAudit(tkt):       return typeSwitch(tkt, 'tktStringAudit')
+def tktStringBase(tkt):        return typeSwitch(tkt, 'tktStringBase')
+def tktStringDebug(tkt):       return typeSwitch(tkt, 'tktStringDebug')
+def tktStringDescription(tkt): return typeSwitch(tkt, 'tktStringDescription')
+def tktStringJournal(tkt):     return typeSwitch(tkt, 'tktStringJournal')
+def tktStringPrimary(tkt):     return typeSwitch(tkt, 'tktStringPrimary')
+def tktStringRequestor(tkt):   return typeSwitch(tkt, 'tktStringRequestor')
+def tktStringResolution(tkt):  return typeSwitch(tkt, 'tktStringResolution')
+def tktStringShort(tkt):       return typeSwitch(tkt, 'tktStringShort')
+def tktStringSummary(tkt):     return typeSwitch(tkt, 'tktStringSummary')
+
 
 #########################################################################
 ### ServiceNow Searching ################################################
 #########################################################################
 
-
 def groupById(id):
     """
+    Pull a sys_user_group entry by sys_id.  Goes through cacheQueryOne, so
+    future calls are cached.
     """
+    return cacheQueryOne('sys_user_group', query={ 'sys_id': id })
 
-    q = snow.query(table='sys_user_group', query={ 'sys_id': id })
-    e = q.get_one()
-    return e
+def incidentByNumber(number):
+    """
+    """
+    i = snow.query(table='incident', query={'number': number})
+    inc = i.get_one()
+    return inc 
 
 def ritmByNumber(number):
     """
@@ -114,24 +198,49 @@ def ritmByNumber(number):
     ritm = r.get_one()
     return ritm
 
+def groupByName(name):
+    """
+    """
+    return cacheQueryOne('sys_user_group', query={ 'name': name })
+
 def userById(id):
     """
     Queries and returns a single sys_user entry based on a user sys_id.
     """
-    q = snow.query(table='sys_user', query={ 'sys_id': id })
-    return q.get_one()
+    return cacheQueryOne('sys_user', query={ 'sys_id': id })
+
+def userInGroups(username):
+    """
+    """
+    me = userByUsername(username)
+    ret = []
+    q = snow.query(table='sys_user_grmember', query={ 'user': me['sys_id'] })
+    for g in q.get_all():
+        id = g['group']['value']
+        group = groupById(id)
+        ret.append(group['name'])
+    return ret
 
 def userByName(name):
     """
     """
-    q = snow.query(table='sys_user', query={ 'name': name })
-    return q.get_one()
+    return cacheQueryOne('sys_user', query={ 'name': name })
 
 def userByUsername(name):
     """
     """
-    q = snow.query(table='sys_user', query={ 'user_name': name })
-    return q.get_one()
+    return cacheQueryOne('sys_user', query={ 'user_name': name })
+
+def tktSearch(table, **args):
+    """
+    """
+
+    try:
+        search = tableSwitch(table, 'tktFilter', **args)
+        q = snow.query(table=table, query=str(search))
+        return q.get_all()
+    except UnexpectedResponse, e:
+        print "%s" % e
 
 def tktJournalEntries(tkt):
     """
