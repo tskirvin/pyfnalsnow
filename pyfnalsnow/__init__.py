@@ -140,14 +140,9 @@ def typeSwitch(tkt, function):
 ### Reporting Functions #################################################
 #########################################################################
 
-def printSearchSummary(type, query='group', subquery='open', **args):
-    """
-    """
-    return None
-    
-
 def tktString (tkt, type='base', *args, **kwargs):
     """
+    Create a string summarizing ticket data, and return as an array.
     """
 
     if   type == 'audit':   return tktStringBaseAudit(tkt, **kwargs)
@@ -208,11 +203,11 @@ def ritmByNumber(number):
 
 def ritmUpdate(number, updateHash):
     """
+    Update an RITM by number
     """
 
     r = snow.query(table='sc_req_item', query={'number': number})
     update = r.update(updateHash)
-
     return update
 
 def groupByName(name):

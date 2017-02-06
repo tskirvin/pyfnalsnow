@@ -1,0 +1,101 @@
+#!/usr/bin/python
+
+#########################################################################
+### Configuration #######################################################
+#########################################################################
+
+config_file = '/etc/snow/config.yaml'
+group = 'Service Desk'
+
+#########################################################################
+### Declarations ########################################################
+#########################################################################
+
+import pyfnalsnow
+import getpass, optparse, sys
+
+description = "assign an sc_req_item object in SNOW to '%s'" % group
+usage = "%prog [options] NUMBER"
+
+#########################################################################
+### main () #############################################################
+#########################################################################
+
+def main():
+    global p
+    p = optparse.OptionParser (usage = usage, description = description)
+    p.add_option ('--debug', dest='debug', action='store_true', default=False)
+    p.add_option ('--config', dest='config', action='store',
+        default=config_file)
+
+    global opt
+    opt, args = p.parse_args()
+
+    if len(args) < 1:
+        p.print_help()
+        sys.exit(-1)
+
+    update = { 
+        'assignment_group': group,
+        'assigned_to': 0, 
+        'u_request_reassignment': 1
+    }
+    
+    ## connect to SNOW
+    number = pyfnalsnow.tktNumberParse(args[0])
+    config = pyfnalsnow.pyfnalsnow_config(opt.config)
+    snow = pyfnalsnow.connect()
+
+    ritm = pyfnalsnow.ritmUpdate(number, update)
+
+    print u"\n".join(pyfnalsnow.tktString(ritm, 'base')).encode('utf-8').strip()
+
+    sys.exit(0)
+
+if __name__ == '__main__':
+    main()
+
+#########################################################################
+### POD Documentation ###################################################
+#########################################################################
+
+"""
+
+=head1 NAME
+
+snow-ritm-unassign - assign sc_req_item object back to the help desk
+
+=head1 SYNOPSIS
+
+snow-ritm-unassign RITM456995
+
+=head1 USAGE
+
+snow-ritm-unassign assigns a given sc_req_item object (RITM) in Service 
+Now (SNOW) back to the help desk, and prints the resulting output to STDOUT. 
+
+=head1 OPTIONS
+
+=over 4
+
+=item --config CONFIG_FILE
+
+Where should we load our SNOW config data?  Defaults to
+F</etc/snow/config.yaml>.
+
+=back
+
+=head1 AUTHOR
+
+Tim Skirvin <tskirvin@fnal.gov>
+
+=head1 COPYRIGHT
+
+Copyright 2017, Fermi National Accelerator Laboratory
+
+This program is free software; you may redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
+"""

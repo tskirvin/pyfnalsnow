@@ -273,7 +273,7 @@ def tktStringResolution(tkt):
     ret.append("Resolution")
     resolvedBy = pyfnalsnow.userLinkName(tkt['closed_by'])
     ret.extend(formatTextField('Resolved By', resolvedBy,  **extra))
-    ret.extend(formatTextField('Date', formatDate(tkt['closed_at']), **extra))
+    ret.extend(formatTextField('Date', tkt['closed_at'], **extra))
     ret.append('')
     ret.extend(formatText(tkt['close_notes']), **extra)
     ret.append('')
