@@ -1,0 +1,182 @@
+#!/usr/bin/python
+
+#########################################################################
+### Configuration #######################################################
+#########################################################################
+
+config_file = '/etc/snow/config.yaml'
+
+#########################################################################
+### Declarations ########################################################
+#########################################################################
+
+import pyfnalsnow
+import getpass, optparse, pprint, sys
+
+description = "add a worklog entry to an sc_req_item object in SNOW"
+usage = "%prog [options] NUMBER"
+
+#########################################################################
+### main () #############################################################
+#########################################################################
+
+def main():
+    global p
+    p = optparse.OptionParser (usage = usage, description = description)
+    p.add_option ('--debug', dest='debug', action='store_true', default=False)
+    p.add_option ('--config', dest='config', action='store',
+        default=config_file)
+    p.add_option ('--group', dest='group', action='store', default='default')
+    p.add_option ('--user',  dest='user',  action='store', default='default')
+
+    global opt
+    opt, args = p.parse_args()
+
+    if len(args) < 1:
+        p.print_help()
+        sys.exit(-1)
+
+    ## default values for the update hash
+    update = { 'assignment_group': opt.group, 'assigned_to': opt.user }
+    g = opt.group
+    u = opt.user
+
+    if g == 'default': 
+        del update['assignment_group']
+        g = '*none*'
+
+    if u == 'default': 
+        update['assigned_to'] = ''
+        u = '*none*'
+
+    ## connect to SNOW
+    number = pyfnalsnow.tktNumberParse(args[0])
+    config = pyfnalsnow.pyfnalsnow_config(opt.config)
+    snow = pyfnalsnow.connect()
+
+    group = ''
+    if 'assignment_group' in update:
+        try:
+            group = pyfnalsnow.groupByName(update['assignment_group'])
+        except Exception, e:
+            print "group %s does not exist in SNOW" % update['assignment_group']
+            sys.exit(-1)
+
+    tkt = pyfnalsnow.ritmByNumber(number)
+    if not tkt:
+        print "no matches for ticket '%s'" % number
+        sys.exit(-1)
+
+    user = ''
+    if 'assigned_to' in update and update['assigned_to'] != 0:
+        try:
+            user = pyfnalsnow.userByUsername(update['assigned_to'])
+        except Exception, e:
+            print "user %s does not exist in SNOW " % update['assigned_to']
+            sys.exit(-1)
+
+        if 'assignment_group' in update: g1 = update['assignment_group']
+        else:          g1 = pyfnalsnow.groupLink(tkt['assignment_group'])
+
+        if not pyfnalsnow.userInGroup(update['assigned_to'], g1):
+            print "user %s is not in group %s" % (update['assigned_to'], g1)
+            sys.exit(-1)
+
+    if tkt['assignment_group'] == '':
+        if 'assignment_group' not in update:
+            print "ticket is not in a group, no --group passed in"
+            sys.exit(-1)
+        else:
+            g = tkt['assignment_group']
+    
+    if opt.debug:
+        print "Assigning tkt %s to %s/%s" % (number, g, u)
+
+    print update
+
+    ritm = pyfnalsnow.ritmUpdate(number, update)
+
+    print u"\n".join(pyfnalsnow.tktString(ritm, 'base')).encode('utf-8').strip()
+
+    sys.exit(0)
+
+if __name__ == '__main__':
+    main()
+
+#########################################################################
+### POD Documentation ###################################################
+#########################################################################
+
+"""
+
+=head1 NAME
+
+snow-ritm-assign - assign sc_req_item object ownership
+
+=head1 SYNOPSIS
+
+snow-ritm-assign RITM456995 --user richt
+
+snow-ritm-assign RITM456995 --user richt --group 'SSI Internal'
+
+snow-ritm-assign RITM456995 --group 'SSI Internal'
+
+=head1 USAGE
+
+snow-ritm-assign sets the `assigment_group` and `assigned_to` fields for a
+specific sc_req_item object (RITM) in Service Now (SNOW), and prints the
+resulting output to STDOUT. 
+
+This generally goes down one of three paths:
+
+=over 4
+
+=item User and Group
+
+We confirm that the user and group exist, and that the user is *in* the
+group in question.  Assigns both fields.
+
+=item User, no Group
+
+We confirm that the user is in the ticket's existing group assignment.
+Assigns just the one field.
+
+=item Group, no User
+
+Confirms that the group exists, and empties the user ownership.
+
+=back
+
+=head1 OPTIONS
+
+=over 4
+
+=item --config CONFIG_FILE
+
+Where should we load our SNOW config data?  Defaults to
+F</etc/snow/config.yaml>.
+
+=item --group  I<groupname>
+
+What username is actually adding this entry?
+
+=item --user I<username>
+
+What username is actually adding this entry?
+
+=back
+
+=head1 AUTHOR
+
+Tim Skirvin <tskirvin@fnal.gov>
+
+=head1 COPYRIGHT
+
+Copyright 2017, Fermi National Accelerator Laboratory
+
+This program is free software; you may redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
+"""

@@ -6,7 +6,7 @@ pyfnalsnow.ticket
 ### Declarations ########################################################
 #########################################################################
 
-import iso8601
+import iso8601, pprint
 import pyfnalsnow
 import textwrap
 
@@ -42,7 +42,7 @@ def formatText(text, **kwargs):
     """
 
     prefix = wrap_defaults['prefix']
-    if prefix in kwargs: prefix = kwargs['prefix']
+    if 'prefix' in kwargs: prefix = kwargs['prefix']
 
     ret = []
     for i in text.split("\n"): ret.append("%s%s" % (prefix, i))
@@ -50,6 +50,8 @@ def formatText(text, **kwargs):
 
 def formatTextField(field, value, **kwargs):
     """
+    Given a field and a value, return a consistently-format using textwrap.  
+    Takes the parameters 'prefix', 'width', and 'minWidth'
     """
 
     minWidth = wrap_defaults['minWidth']
@@ -108,6 +110,20 @@ def tktStringBase(tkt):
 
     return ret
 
+def tktStringBaseAudit(tkt):
+    """
+    Return a printable array containing the Primary and Audit ticket data.
+    """
+    ret = []
+    ret = []
+    ret.extend(pyfnalsnow.tktStringPrimary(tkt))
+    ret.append('')
+
+    ret.extend(pyfnalsnow.tktStringAudit(tkt))
+    ret.append('')
+
+    return ret
+
 def tktStringAssignee(tkt):
     """
     Return a printable array containing assignee information for a ticket:
@@ -131,7 +147,28 @@ def tktStringAudit(tkt):
     Does not work yet.
     """
 
-    return []
+    history = pyfnalsnow.tktHistory(tkt)
+
+    count = 0
+    ret = []
+    for i in history:
+        if 'update' in i:
+            if i['update'] != '0':
+                count = count + 1
+                field = i['field']
+                old   = i['old']
+                new   = i['new']
+                label = i['label']
+                ret.append('Audit Entry %s' % count)
+                ret.extend(formatTextField('Date', i['update_time']))
+                ret.extend(formatTextField('Updated By', i['user_id']))
+                ret.extend(formatTextField('Field', field))
+                ret.extend(formatTextField('Old', old))
+                ret.extend(formatTextField('New', new))
+                ret.append('')
+
+    return ret
+
 
 def tktStringDebug(tkt):
     """
@@ -165,21 +202,26 @@ def tktStringJournal(tkt):
     """
     Returns a printable array of journal entries for this ticket.  Gets
     the journals using tktJournalEntries.  
-
-    Doesn't work yet.
     """
 
-    return []
-
-    extra = {}
+    depth1 = { 'prefix': '    ' }
+    depth2 = { 'prefix': '    ' }
     ret = []
     journals = pyfnalsnow.tktJournalEntries(tkt)
     if len(journals) < 1: return ret
 
     ret.append('Journal Entries')
+
+    count = 1
     for i in journals:
-        print i
-        ret.extend(i)
+        ret.append('  Entry %s' % count)
+        count = count + 1
+        ret.extend(formatTextField('Date', formatDate(i['sys_created_on']), **depth1))
+        ret.extend(formatTextField('Created By', i['sys_created_by'], **depth1))
+        ret.extend(formatTextField('Type', i['element'], **depth1))
+        ret.append('')
+        ret.extend(formatText(i['value'], prefix='    '))
+        ret.append('')
 
     return ret
 
@@ -222,19 +264,19 @@ def tktStringRequestor(tkt):
 
 def tktStringResolution(tkt):
     """
-
-    Not yet complete.
+    Returns a printable string summarizing the resolution data - who
+    resolved the RITM, when this happened, and any associated 'close
+    notes'.
     """
     extra = {}
     ret = []
     ret.append("Resolution")
-    print tkt
-    # ret.extend(formatTextField('Resolved By',  tktResolvedBy(tkt),  **extra))
-    # ret.extend(formatTextField('Date', formatDate(tktDateResolved(tkt)),
-    #     **extra))
-    # ret.extend(formatTextField('Close Code',  tktResolvedCode(tkt), **extra))
+    resolvedBy = pyfnalsnow.userLinkName(tkt['closed_by'])
+    ret.extend(formatTextField('Resolved By', resolvedBy,  **extra))
+    ret.extend(formatTextField('Date', formatDate(tkt['closed_at']), **extra))
     ret.append('')
     ret.extend(formatText(tkt['close_notes']), **extra)
+    ret.append('')
 
     return ret
 
@@ -273,11 +315,11 @@ def tktStringSummary(tkt):
 
     number = tkt['number']
 
-    assignee = userLinkUsername(tkt['assigned_to'])
+    assignee = pyfnalsnow.userLinkUsername(tkt['assigned_to'])
     if assignee: assign = assignee
     else:        assign = '*unassigned*'
 
-    requestor = userLinkUsername(tkt['sys_created_by'])
+    requestor = pyfnalsnow.userLinkUsername(tkt['sys_created_by'])
     if requestor: request = requestor
     else:         request = '*unknown*'
 
@@ -303,29 +345,8 @@ def tktStringSummary(tkt):
 ## Given a ticket with all fields, pull out printable information.  This
 ## is primarily used internally.
 
-def groupLink(group):
-    if isinstance(group, dict):
-        if 'value' in group:
-            g = pyfnalsnow.groupById(group['value'])
-            return g['name']
-    return group
-
-def userLink(user):
-    if isinstance(user, dict):
-        if 'value' in user:
-            u = pyfnalsnow.userById(user['value'])
-            return u['name']
-    return user
-
-def userLinkUsername(user):
-    if isinstance(user, dict):
-        if 'value' in user:
-            u = pyfnalsnow.userById(user['value'])
-            return u['user_name']
-    return user
-
-def tktAssignedPerson(tkt): return userLink(tkt['assigned_to'])
-def tktAssignedGroup(tkt):  return groupLink(tkt['assignment_group'])
+def tktAssignedPerson(tkt): return pyfnalsnow.userLinkName(tkt['assigned_to'])
+def tktAssignedGroup(tkt):  return pyfnalsnow.groupLink(tkt['assignment_group'])
 def tktCallingPerson(tkt):  return tkt['caller_id']
 def tktDateResolved(tkt):   return tkt['resolved_at']
 def tktDateSubmit(tkt):     return tkt['opened_at']
@@ -333,7 +354,7 @@ def tktDateUpdate(tkt):     return tkt['sys_updated_on']
 def tktNumber(tkt):         return tkt['number']
 def tktPriority(tkt):       return tkt['priority']
 def tktRequestPerson(tkt):  return tkt['sys_created_by']
-def tktResolvedBy(tkt):     return userLink(tkt['resolved_by'])
+def tktResolvedBy(tkt):     return pyfnalsnow.userLinkName(tkt['resolved_by'])
 def tktResolvedCode(tkt):   return tkt['close_code']
 def tktServiceType(tkt):    return tkt['u_service_type']
 

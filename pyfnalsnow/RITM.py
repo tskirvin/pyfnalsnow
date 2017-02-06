@@ -6,10 +6,13 @@ pyfnalsnow.RITM
 ### Declarations ########################################################
 #########################################################################
 
+import pprint
+
 import pyfnalsnow
 from pyfnalsnow.ticket import tktStringAssignee
 from pyfnalsnow.ticket import tktStringAudit
 from pyfnalsnow.ticket import tktStringBase
+from pyfnalsnow.ticket import tktStringBaseAudit
 from pyfnalsnow.ticket import tktStringDebug
 from pyfnalsnow.ticket import tktStringDescription
 from pyfnalsnow.ticket import tktStringJournal
@@ -29,6 +32,7 @@ from pyfnalsnow.ticket import tktStringSummary
 
 def tktFilter(status='open', **args):
     """
+    Filter tickets.  
     """
 
     extra = []
@@ -53,12 +57,16 @@ def tktFilter(status='open', **args):
 
     if 'submit' in args:
         user = pyfnalsnow.userByUsername(args['submit'])
-        extra.append('sys_created_by=%s' % user['sys_id'])
-
+        extra.append('sys_created_by=%s' % user['user_name'])
 
     search='^'.join(extra)
 
     return search
 
 
-def tktIsResolved(tkt): return False
+def tktIsResolved(tkt): 
+    """
+    Returns True if the RITM is resolved, False otherwise.
+    """
+    if tkt['state'] == '3': return True
+    else:                   return False

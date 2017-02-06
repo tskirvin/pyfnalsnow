@@ -150,7 +150,7 @@ def tktString (tkt, type='base', *args, **kwargs):
     """
     """
 
-    if   type == 'audit':   return tktStringAudit(tkt, **kwargs)
+    if   type == 'audit':   return tktStringBaseAudit(tkt, **kwargs)
     elif type == 'base':    return tktStringBase(tkt, **kwargs)
     elif type == 'debug':   return tktStringDebug(tkt, **kwargs)
     elif type == 'short':   return tktStringShort(tkt, **kwargs)
@@ -163,6 +163,7 @@ def tktIsResolved(tkt): return typeSwitch(tkt, 'tktIsResolved')
 def tktStringAssignee(tkt):    return typeSwitch(tkt, 'tktStringAssignee')
 def tktStringAudit(tkt):       return typeSwitch(tkt, 'tktStringAudit')
 def tktStringBase(tkt):        return typeSwitch(tkt, 'tktStringBase')
+def tktStringBaseAudit(tkt):   return typeSwitch(tkt, 'tktStringBaseAudit')
 def tktStringDebug(tkt):       return typeSwitch(tkt, 'tktStringDebug')
 def tktStringDescription(tkt): return typeSwitch(tkt, 'tktStringDescription')
 def tktStringJournal(tkt):     return typeSwitch(tkt, 'tktStringJournal')
@@ -171,7 +172,6 @@ def tktStringRequestor(tkt):   return typeSwitch(tkt, 'tktStringRequestor')
 def tktStringResolution(tkt):  return typeSwitch(tkt, 'tktStringResolution')
 def tktStringShort(tkt):       return typeSwitch(tkt, 'tktStringShort')
 def tktStringSummary(tkt):     return typeSwitch(tkt, 'tktStringSummary')
-
 
 #########################################################################
 ### ServiceNow Searching ################################################
@@ -183,6 +183,14 @@ def groupById(id):
     future calls are cached.
     """
     return cacheQueryOne('sys_user_group', query={ 'sys_id': id })
+
+def groupLink(group):
+    if isinstance(group, dict):
+        if 'value' in group:
+            if group['value'] == u'0': return '*none*'
+            g = groupById(group['value'])
+            return g['name']
+    return group
 
 def incidentByNumber(number):
     """
@@ -197,6 +205,15 @@ def ritmByNumber(number):
     r = snow.query(table='sc_req_item', query={'number': number})
     ritm = r.get_one()
     return ritm
+
+def ritmUpdate(number, updateHash):
+    """
+    """
+
+    r = snow.query(table='sc_req_item', query={'number': number})
+    update = r.update(updateHash)
+
+    return update
 
 def groupByName(name):
     """
@@ -221,6 +238,18 @@ def userInGroups(username):
         ret.append(group['name'])
     return ret
 
+
+def userInGroup(username, group):
+    """
+    Return True is the user with the offered username is in the group with
+    the offered group name, False otherwise.
+    """
+
+    groups = userInGroups(username)
+    for g in groups: 
+        if g == group: return True
+    return False
+
 def userByName(name):
     """
     """
@@ -230,6 +259,26 @@ def userByUsername(name):
     """
     """
     return cacheQueryOne('sys_user', query={ 'user_name': name })
+
+def userLinkName(user):
+    """
+    """
+    if isinstance(user, dict):
+        if 'value' in user:
+            if user['value'] == u'0': return '*nobody*'
+            u = pyfnalsnow.userById(user['value'])
+            return u['name']
+    return user
+
+def userLinkUsername(user):
+    """
+    """
+    if isinstance(user, dict):
+        if 'value' in user:
+            if user['value'] == u'0': return '*nobody*'
+            u = pyfnalsnow.userById(user['value'])
+            return u['user_name']
+    return user
 
 def tktSearch(table, **args):
     """
@@ -241,6 +290,21 @@ def tktSearch(table, **args):
         return q.get_all()
     except UnexpectedResponse, e:
         print "%s" % e
+
+def tktHistory(tkt):
+    """
+    """
+
+    number = tkt['number']
+
+    s = snow
+    q = s.query(table='sys_history_line', query={ 'set.id': tkt['sys_id'] })
+    entries = q.get_all()
+
+    ret = []
+    for i in entries:
+        ret.append(i)
+    return ret
 
 def tktJournalEntries(tkt):
     """
@@ -260,7 +324,7 @@ def tktJournalEntries(tkt):
         journals[key] = i
 
     for i in sorted(journals.iterkeys()):
-        ret.append(journals[key])
+        ret.append(journals[i])
 
     return ret
 
@@ -312,7 +376,6 @@ def tktType(number):
         if type == 'TASK':      return 'sc_task'
 
     raise 'unknown ticket type for %s' % number
-
 
 #########################################################################
 ### main () #############################################################
