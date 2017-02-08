@@ -11,9 +11,9 @@ config_file = '/etc/snow/config.yaml'
 #########################################################################
 
 import pyfnalsnow
-import optparse, pprint, sys
+import getpass, optparse, pprint, sys
 
-description = "read a sc_req_item object from SNOW"
+description = "add a worklog entry to an object in SNOW"
 usage = "%prog [options] NUMBER"
 
 #########################################################################
@@ -26,8 +26,10 @@ def main():
     p.add_option ('--debug', dest='debug', action='store_true', default=False)
     p.add_option ('--config', dest='config', action='store',
         default=config_file)
-    p.add_option ('--type', dest='string_type', action='store', default='base',
-        choices=['base', 'debug', 'worklog', 'audit'])
+    p.add_option ('--type', dest='field', action='store',
+        default='work_notes', choices=['comment', 'work_notes'])
+    p.add_option ('--user', dest='user', action='store',
+        default=getpass.getuser())
 
     global opt
     opt, args = p.parse_args()
@@ -36,13 +38,20 @@ def main():
         p.print_help()
         sys.exit(-1)
 
-    number = pyfnalsnow.tktNumberParse(args[0])
+    text = '\n'.join(sys.stdin.readlines()).rstrip()
 
+    number = pyfnalsnow.tktNumberParse(args[0])
     config = pyfnalsnow.pyfnalsnow_config(opt.config)
     snow = pyfnalsnow.connect()
-    tkt = pyfnalsnow.tktByNumber(number)
-    print u"\n".join(pyfnalsnow.tktString(tkt, \
-        type=opt.string_type)).encode('utf-8').strip()
+
+    if not pyfnalsnow.tktByNumber(number):
+        print "no matches for ticket '%s'" % number
+        sys.exit(-1)
+
+    update = { opt.field: "%s: %s" % (opt.user, text) }
+    tkt = pyfnalsnow.tktUpdate(number, update)
+
+    print u"\n".join(pyfnalsnow.tktString(tkt, 'base')).encode('utf-8').strip()
 
     sys.exit(0)
 
@@ -57,18 +66,17 @@ if __name__ == '__main__':
 
 =head1 NAME
 
-snow-ritm - print information about a SNOW sc_req_item (RITM)
+snow-tkt-journal - add worklog entries to a SNOW object
 
 =head1 SYNOPSIS
 
-B<snow-ritm> RITM456995
-
-B<snow-ritm> RITM456995 --type debug
+echo "testing" | B<snow-tkt-journal> RITM456995
 
 =head1 USAGE
 
-snow-ritm queries Service Now (SNOW) to pull down data about a specific
-sc_req_item object (RITM), and prints the output to STDOUT.  
+snow-tkt-journal adds `work_notes` or `comments` entries to a specific
+object in Service Now (SNOW), and prints the resulting output to STDOUT.
+The actual text comes from STDIN.
 
 =head1 OPTIONS
 
@@ -79,13 +87,13 @@ sc_req_item object (RITM), and prints the output to STDOUT.
 Where should we load our SNOW config data?  Defaults to
 F</etc/snow/config.yaml>.
 
-=item --debug
+=item --field I<work_notes|comment>
 
-If set, prints some debugging data.
+Default: I<work_notes>
 
-==item --type [base|debug|worklog|audit]
+=item --user I<username>
 
-What kind of output do you want to see?  Defaults to 'base'.
+What username is actually adding this entry?  Defaults to the invoker.
 
 =back
 

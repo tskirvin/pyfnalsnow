@@ -1,0 +1,47 @@
+#!/bin/bash
+
+snow-incident-list $@
+snow-ritm-list     $@
+
+exit 0
+
+###############################################################################
+### Documentation #############################################################
+###############################################################################
+
+# Documentation.  Use a hack to hide this from the shell.  Because of the
+# above exit line, this should never be executed.
+DOCS=<<__END_OF_DOCS__
+
+=head1 
+
+snow-tkt-list - run snow-incident-list and snow-ritm-list
+
+=head1 SYNOPSIS
+
+B<snow-tkt-list>
+
+=head1 DESCRIPTION
+
+This is just a wrapper to run B<snow-incident-list> and B<snow-ritm-list> with
+a single command.  All command-line options are passed straight to those two
+commands.
+
+=head1 OPTIONS
+
+See B<snow-incident-list> and/or B<snow-ritm-list>.
+
+=head1 AUTHOR
+
+Tim Skirvin <tskirvin@fnal.gov>
+
+=head1 LICENSE
+
+Copyright 2017, Fermi National Accelerator Laboratory
+
+This program is free software; you may redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
+__END_OF_DOCS__

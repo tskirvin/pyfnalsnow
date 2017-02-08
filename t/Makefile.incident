@@ -2,4 +2,8 @@ INCIDENT?= 'INC0802825'
 
 incident:
 	@echo "incident"
-	@ ../usr/bin/snow-ritm $(INCIDENT)
+	@ ../usr/bin/snow-tkt $(INCIDENT)
+
+incident-search:
+	@echo "incident-search"
+	@ ../usr/bin/snow-incident-list  --debug

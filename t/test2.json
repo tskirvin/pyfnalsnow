@@ -1,0 +1,11 @@
+{
+    "catalog_item": {
+        "sys_id": "9a0304dee4809000863885ce73245e77",
+        "vars": {
+            "additional_info": "created by keytab-request script",
+            "host_ftp_principals": "true",
+            "email": "fef-sss@fnal.gov",
+            "host_name": "testing.fnal.gov"
+        }
+    }
+}

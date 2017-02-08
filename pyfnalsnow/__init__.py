@@ -30,7 +30,7 @@ types = {
 ### Declarations ########################################################
 #########################################################################
 
-import pysnow, re, sys, yaml
+import pprint, pysnow, re, sys, yaml
 import pyfnalsnow.Incident, pyfnalsnow.RITM
 
 #########################################################################
@@ -68,7 +68,6 @@ def pyfnalsnow_config(file):
 
     return config
 
-
 #########################################################################
 ### pysnow wrappers #####################################################
 #########################################################################
@@ -85,7 +84,7 @@ def connect():
         instance=config['servicenow']['instance'],
         user=config['servicenow']['username'],
         password=config['servicenow']['password'],
-        raise_on_empty=True
+        raise_on_empty=False
     )
 
     return snow
@@ -251,15 +250,27 @@ def tktJournalEntries(tkt):
 
 def tktSearch(table, **args):
     """
-    Given a table name, search the table using tktFilter().
+    Given a table name, search the table using tktFilter().  Returns an
+    array of matching objects.
     """
 
     try:
         search = tableSwitch(table, 'tktFilter', **args)
         q = snow.query(table=table, query=str(search))
-        return q.get_all()
-    except UnexpectedResponse, e:
-        print "%s" % e
+    except Exception, e:
+        raise e
+
+    ret = []
+    for i in q.get_all(): 
+        if i: ret.append(i)
+    return ret
+
+def tktCreate(table, entry, **args):
+    """
+    """
+    print table
+    print entry
+    return snow.insert(table, entry, **args)
 
 def tktUpdate(number, updateHash):
     """

@@ -11,19 +11,22 @@ config_file = '/etc/snow/config.yaml'
 #########################################################################
 
 import pyfnalsnow
-import getpass, optparse, pprint, sys
+import getpass, optparse, sys
 
-description = "query for sc_req_item objects in SNOW"
+description = "query for incident objects in SNOW"
 usage = "%prog [options] subject"
+
+template = {
+    'catalog_item': {
+        'sys_id': '18c27227042950008638553dd6544037',
+        'vars': {}
+    }
+}
+
 
 #########################################################################
 ### Subroutines #########################################################
 #########################################################################
-
-def findGroups():
-    if opt.group == 'all': groups = pyfnalsnow.userInGroups(opt.user)
-    else:                  groups = [ opt.group ]
-    return groups
 
 #########################################################################
 ### main () #############################################################
@@ -35,62 +38,45 @@ def main():
     p.add_option ('--debug', dest='debug', action='store_true', default=False)
     p.add_option ('--config', dest='config', action='store',
         default=config_file)
-    p.add_option ('--group', dest='group', action='store', default='all')
-    p.add_option ('--user', dest='user', action='store',
+    p.add_option ('--group', dest='group', action='store', default='')
+    p.add_option ('--user', dest='user', action='store', 
         default=getpass.getuser())
-    p.add_option ('--query', dest='query', action='store', default='group',
-        choices=['assign', 'group', 'submit'])
-    p.add_option ('--subquery', dest='subquery', action='store', default='open',
-        choices=['closed', 'open', 'unresolved'])
 
     global opt
     opt, args = p.parse_args()
 
-    if len(args) != 0:
+    if len(args) < 1:
         p.print_help()
         sys.exit(-1)
+
+    subject = ' '.join(args).rstrip()
+    text = '\n'.join(sys.stdin.readlines()).rstrip()
 
     config = pyfnalsnow.pyfnalsnow_config(opt.config)
     snow = pyfnalsnow.connect()
 
     ret = []
 
-    if opt.debug: print "querying %s/%s" % (opt.query, opt.subquery)
-
-    if opt.query == 'group':
-        for g in findGroups():
-            ret.append("== Unresolved RITMs assigned to group '%s' ==" % g)
-
-            for t in pyfnalsnow.tktSearch('sc_req_item', group=g, \
-                status='unresolved'):
-                summary = pyfnalsnow.tktStringSummary(t)
-                ret.append('')
-                ret.extend(summary)
-            ret.append('')
-
-    elif opt.query == 'assign':
-        ret.append("== Unresolved RITMs assigned to user '%s' ==" % opt.user)
-        for t in pyfnalsnow.tktSearch('sc_req_item', assigned=opt.user,
-                status=opt.subquery):
-            summary = pyfnalsnow.tktStringSummary(t)
-            ret.append('')
-            ret.extend(summary)
-        ret.append('')
-
-    elif opt.query == 'submit':
-        ret.append("== Unresolved RITMs submitted by user '%s' ==" % opt.user)
-        for t in pyfnalsnow.tktSearch('sc_req_item', submit=opt.user,
-                status=opt.subquery):
-            summary = pyfnalsnow.tktStringSummary(t)
-            ret.append('')
-            ret.extend(summary)
-        ret.append('')
-
-    else:
-        print "unknown query type: %s" % opt.query
+    u = pyfnalsnow.userByUsername(opt.user)
+    if not u:
+        print "no matching SNOW user: %s" % opt.user
         sys.exit(-1)
 
-    print '\n'.join(ret)
+    base = template
+    #            "short_description": string,
+    #        "requested_for": sys_id (as a string) of a person,
+    #        "description": string
+    base['catalog_item']['vars']['short_description'] = subject
+    base['catalog_item']['vars']['description'] = text
+    # base['catalog_item']['vars']['requested_for'] = u['sys_id']
+    base['catalog_item']['vars']['requested_for'] = u['user_name']
+    if opt.group != '':
+        base['catalog_item']['vars']['assignment_group'] = opt.group
+
+    # ret = pyfnalsnow.tktCreate('request', base)
+    ret = pyfnalsnow.tktCreate('request', base)
+    print ret
+
     sys.exit(0)
 
 if __name__ == '__main__':
@@ -121,7 +107,7 @@ B<snow-ritm-list> --query submit --user tskirvin
 =head1 USAGE
 
 snow-ritm queries Service Now (SNOW) to pull down data about a specific
-sc_req_item object (RITM), and prints the output to STDOUT.
+sc_req_item object (RITM), and prints the output to STDOUT.  
 
 =head1 OPTIONS
 

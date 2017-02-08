@@ -1,0 +1,60 @@
+RITM?= 'RITM456995'
+#RITM?= 'RITM501099'
+
+ritm:
+	@echo "ritm"
+	@ ../usr/bin/snow-tkt $(RITM)
+
+ritm-create:
+	@echo "ritm-create"
+	@ echo "hi" | ../usr/bin/snow-ritm-create "testing"
+
+ritm-debug:
+	@echo "ritm-debug"
+	@ ../usr/bin/snow-tkt $(RITM) --type debug
+
+ritm-assign:
+	@echo "ritm-assign"
+	@ ../usr/bin/snow-ritm-assign $(RITM) --user $(USER) --group '$(GROUP)'
+
+ritm-assign-no-user:
+	@echo "ritm-assign-no-user"
+	@ ../usr/bin/snow-ritm-assign $(RITM) --group $(GROUP) --debug
+
+ritm-assign-no-group:
+	@echo "ritm-assign-no-group"
+	@ ../usr/bin/snow-ritm-assign $(RITM) --user $(USER) --debug
+
+ritm-audit:
+	@echo "ritm-audit"
+	@ ../usr/bin/snow-ritm $(RITM) --type audit
+
+ritm-journal:
+	@echo "ritm-journal"
+	@echo "testing" | ../usr/bin/snow-tkt-journal $(RITM) 
+
+ritm-reopen:
+	@echo "ritm-reopen"
+	@ ../usr/bin/snow-ritm-reopen $(RITM)
+
+ritm-resolve:
+	@echo "ritm-resolve"
+	@ ../usr/bin/snow-ritm-resolve $(RITM) "testing a resolve"
+
+ritm-search:
+	@echo "ritm-search"
+	../usr/bin/snow-ritm-list --debug
+
+ritm-unassign:
+	@echo "ritm-unassign"
+	@ ../usr/bin/snow-ritm-unassign $(RITM)
+
+PASS=$(shell cat /etc/snow/config.yaml | shyaml get-value servicenow.password)
+USER=$(shell cat /etc/snow/config.yaml | shyaml get-value servicenow.username)
+URL=$(shell  cat /etc/snow/config.yaml | shyaml get-value servicenow.url)
+
+request-new-direct:
+	curl -v -H "Content-Type: application/json" "$(URL)/service.do" --data "@./test.json" --request POST --header "Accept:application/json" --user "$(USER)":"$(PASS)"
+
+request-new-keytab:
+	curl -v -H "Content-Type: application/json" "$(URL)/service.do" --data "@./test2.json" --request POST --header "Accept:application/json" --user "$(USER)":"$(PASS)"

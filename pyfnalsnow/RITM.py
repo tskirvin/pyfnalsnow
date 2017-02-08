@@ -1,12 +1,10 @@
-""" 
+"""
 pyfnalsnow.RITM
 """
 
 #########################################################################
 ### Declarations ########################################################
 #########################################################################
-
-import pprint
 
 import pyfnalsnow
 from pyfnalsnow.ticket import tktStringAssignee
@@ -26,23 +24,36 @@ from pyfnalsnow.ticket import tktStringSummary
 ### Configuration #######################################################
 #########################################################################
 
+state = {
+    -5: 'Pending',
+     3: 'Closed',
+    11: 'Complete',
+    20: 'Waiting for Acknowledgement',
+    21: 'Acknowledged',
+    23: 'Work in Progress',
+    24: 'Cancelled'
+}
+
 #########################################################################
 ### Subroutines #########################################################
 #########################################################################
 
 def tktFilter(status='open', **args):
     """
-    Filter tickets.  
+    Filter tickets.
     """
 
     extra = []
     if status.lower() == 'open':
         extra.append('state>3')
-        extra.append('stage!=Request Cancelled')
+        extra.append('state!=24')
+        extra.append('state!=11')
     elif status.lower() == 'closed':
-        extra.append('state<=3')
+        extra.append('state==3')
     elif status.lower() == 'unresolved':
-        extra.append('state>=3')
+        extra.append('state>3')
+        extra.append('state<24')
+        extra.append('state!=11')
 
     if 'unassigned' in args:
         extra.append('assigned_to=NULL')
@@ -64,7 +75,7 @@ def tktFilter(status='open', **args):
     return search
 
 
-def tktIsResolved(tkt): 
+def tktIsResolved(tkt):
     """
     Returns True if the RITM is resolved, False otherwise.
     """
