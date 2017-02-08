@@ -14,7 +14,7 @@ group = 'Service Desk'
 import pyfnalsnow
 import getpass, optparse, sys
 
-description = "assign an sc_req_item object in SNOW to '%s'" % group
+description = "assign a SNOW ticket to '%s'" % group
 usage = "%prog [options] NUMBER"
 
 #########################################################################
@@ -46,9 +46,9 @@ def main():
     config = pyfnalsnow.pyfnalsnow_config(opt.config)
     snow = pyfnalsnow.connect()
 
-    ritm = pyfnalsnow.tktUpdate(number, update)
+    tkt = pyfnalsnow.tktUpdate(number, update)
 
-    print u"\n".join(pyfnalsnow.tktString(ritm, 'base')).encode('utf-8').strip()
+    print u"\n".join(pyfnalsnow.tktString(tkt, 'base')).encode('utf-8').strip()
 
     sys.exit(0)
 
@@ -63,16 +63,16 @@ if __name__ == '__main__':
 
 =head1 NAME
 
-snow-ritm-unassign - assign sc_req_item object back to the help desk
+snow-tkt-unassign - assign a SNOW ticket back to the help desk
 
 =head1 SYNOPSIS
 
-snow-ritm-unassign RITM456995
+snow-tkt-unassign RITM456995
 
 =head1 USAGE
 
-snow-ritm-unassign assigns a given sc_req_item object (RITM) in Service 
-Now (SNOW) back to the help desk, and prints the resulting output to STDOUT. 
+snow-tkt-unassign assigns a given ticket in Service Now (SNOW) back to    
+the help desk, and prints the resulting output to STDOUT.                 
 
 =head1 OPTIONS
 
