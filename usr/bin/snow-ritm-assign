@@ -62,7 +62,7 @@ def main():
             print "group %s does not exist in SNOW" % update['assignment_group']
             sys.exit(-1)
 
-    tkt = pyfnalsnow.ritmByNumber(number)
+    tkt = pyfnalsnow.tktByNumber(number)
     if not tkt:
         print "no matches for ticket '%s'" % number
         sys.exit(-1)
@@ -92,7 +92,7 @@ def main():
     if opt.debug:
         print "Assigning tkt %s to %s/%s" % (number, g, u)
 
-    ritm = pyfnalsnow.ritmUpdate(number, update)
+    ritm = pyfnalsnow.tktUpdate(number, update)
 
     print u"\n".join(pyfnalsnow.tktString(ritm, 'base')).encode('utf-8').strip()
 

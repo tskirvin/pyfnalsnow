@@ -46,7 +46,7 @@ def main():
     config = pyfnalsnow.pyfnalsnow_config(opt.config)
     snow = pyfnalsnow.connect()
 
-    ritm = pyfnalsnow.ritmUpdate(number, update)
+    ritm = pyfnalsnow.tktUpdate(number, update)
 
     print u"\n".join(pyfnalsnow.tktString(ritm, 'base')).encode('utf-8').strip()
 

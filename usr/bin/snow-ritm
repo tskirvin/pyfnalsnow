@@ -40,8 +40,8 @@ def main():
 
     config = pyfnalsnow.pyfnalsnow_config(opt.config)
     snow = pyfnalsnow.connect()
-    ritm = pyfnalsnow.ritmByNumber(number)
-    print u"\n".join(pyfnalsnow.tktString(ritm, \
+    tkt = pyfnalsnow.tktByNumber(number)
+    print u"\n".join(pyfnalsnow.tktString(tkt, \
         type=opt.string_type)).encode('utf-8').strip()
 
     sys.exit(0)

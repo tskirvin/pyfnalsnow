@@ -2,4 +2,4 @@ INCIDENT?= 'INC0802825'
 
 incident:
 	@echo "incident"
-	@ ../usr/bin/snow-incident $(INCIDENT)
+	@ ../usr/bin/snow-ritm $(INCIDENT)

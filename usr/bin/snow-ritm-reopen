@@ -41,7 +41,7 @@ def main():
     config = pyfnalsnow.pyfnalsnow_config(opt.config)
     snow = pyfnalsnow.connect()
 
-    tkt = pyfnalsnow.ritmByNumber(number)
+    tkt = pyfnalsnow.tktByNumber(number)
     if not tkt:
         print "no matches for ticket '%s'" % number
         sys.exit(-1)
@@ -56,7 +56,7 @@ def main():
         'close_notes': ''
     }
 
-    ritm = pyfnalsnow.ritmUpdate(number, update)
+    ritm = pyfnalsnow.tktUpdate(number, update)
 
     print u"\n".join(pyfnalsnow.tktString(ritm, 'short')).encode('utf-8').strip()
 

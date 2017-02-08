@@ -43,8 +43,8 @@ def main():
     number = pyfnalsnow.tktNumberParse(args[0])
     config = pyfnalsnow.pyfnalsnow_config(opt.config)
     snow = pyfnalsnow.connect()
-    incident = pyfnalsnow.incidentByNumber(number)
-    print '\n'.join(pyfnalsnow.tktString(incident, type=opt.string_type))
+    tkt = pyfnalsnow.tktByNumber(number)
+    print '\n'.join(pyfnalsnow.tktString(tkt, type=opt.string_type))
 
     sys.exit(0)
 

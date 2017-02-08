@@ -1,5 +1,7 @@
 """
-pyfnalsnow.ticket
+pyfnalsnow.ticket - general functions for interacting with Service Now
+ticket-like objects (incidents, requested items, etc).  This will rarely
+be called directly, but will be the basis of (e.g.) pyfnalsnow.RITM.
 """
 
 #########################################################################
@@ -144,7 +146,8 @@ def tktStringAssignee(tkt):
 
 def tktStringAudit(tkt):
     """
-    Does not work yet.
+    Return a printable array containing audit data for a ticket, skipping 
+    data where the 'update' field is 0.
     """
 
     history = pyfnalsnow.tktHistory(tkt)

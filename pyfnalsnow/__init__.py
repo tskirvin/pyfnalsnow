@@ -1,5 +1,6 @@
 """
-
+pyfnalsnow - a python module to interact with the JSON API of the FNAL
+Service Now (SNOW) instance.
 """
 
 #########################################################################
@@ -95,15 +96,18 @@ def connect():
 
 def cacheQueryOne(table, query):
     """
-
+    Do a SNOW database query and cache the result for later.  Uses
+    'get_one()' so we only get a single result.  Especially useful for
+    user and group lookups, which change rarely and need to be queried
+    several times.
     """
     if table not in cache: cache[table] = {}
 
     q = str(query)
 
-    if q in cache[table]: 
+    if q in cache[table]:
         return cache[table][q]
-    else: 
+    else:
         r = snow.query(table=table, query=query)
         try:
             result = r.get_one()
@@ -115,25 +119,25 @@ def cacheQueryOne(table, query):
 def tableSwitch(table, function, **args):
     """
     Black Magic Ahoy!  Given a function name and a table type, invokes that
-    function *from the matching class*.  
+    function *from the matching class*.
     """
-    if table in modules: 
+    if table in modules:
         return eval("%s.%s" % (modules[table], function))(**args)
-    else: 
+    else:
         raise Exception('unsupported table: %s' % type)
 
 def typeSwitch(tkt, function):
     """
     Black Magic Ahoy!  Given a function name and a ticket, invokes that
-    function *from the matching class*.  
+    function *from the matching class*.
     """
     try:    number = tkt['number']
     except: raise Exception('no ticket number in ticket')
     type = tktType(number)
 
-    if type in modules: 
+    if type in modules:
         return eval("%s.%s" % (modules[type], function))(tkt)
-    else: 
+    else:
         raise Exception('unsupported type: %s' % type)
 
 #########################################################################
@@ -150,7 +154,7 @@ def tktString (tkt, type='base', *args, **kwargs):
     elif type == 'debug':   return tktStringDebug(tkt, **kwargs)
     elif type == 'short':   return tktStringShort(tkt, **kwargs)
     elif type == 'worklog': return tktStringWorklog(tkt, **kwargs)
-    else: 
+    else:
         raise Exception('unknown string type: %s' % type)
 
 def tktIsResolved(tkt): return typeSwitch(tkt, 'tktIsResolved')
@@ -174,12 +178,23 @@ def tktStringSummary(tkt):     return typeSwitch(tkt, 'tktStringSummary')
 
 def groupById(id):
     """
-    Pull a sys_user_group entry by sys_id.  Goes through cacheQueryOne, so
+    Pull a sys_user_group entry by sys_id.  Goes through cacheQueryOne(), so
     future calls are cached.
     """
     return cacheQueryOne('sys_user_group', query={ 'sys_id': id })
 
+def groupByName(name):
+    """
+    Pull a sys_user_group entry by name.  Goes through cacheQueryOne(), so
+    future calls are cached.
+    """
+    return cacheQueryOne('sys_user_group', query={ 'name': name })
+
 def groupLink(group):
+    """
+    Convert a 'group' style object to a group name.  This is the data
+    structure that sometimes appears in the middle of standard results.
+    """
     if isinstance(group, dict):
         if 'value' in group:
             if group['value'] == u'0': return '*none*'
@@ -187,107 +202,19 @@ def groupLink(group):
             return g['name']
     return group
 
-def incidentByNumber(number):
+def tktByNumber(number):
     """
-    """
-    i = snow.query(table='incident', query={'number': number})
-    inc = i.get_one()
-    return inc 
-
-def ritmByNumber(number):
-    """
-    """
-    r = snow.query(table='sc_req_item', query={'number': number})
-    ritm = r.get_one()
-    return ritm
-
-def ritmUpdate(number, updateHash):
-    """
-    Update an RITM by number
+    Look up a ticket number by number.  We will look up the correct table
+    type based on the ticket number as well.  Returns a single object.
     """
 
-    r = snow.query(table='sc_req_item', query={'number': number})
-    update = r.update(updateHash)
-    return update
-
-def groupByName(name):
-    """
-    """
-    return cacheQueryOne('sys_user_group', query={ 'name': name })
-
-def userById(id):
-    """
-    Queries and returns a single sys_user entry based on a user sys_id.
-    """
-    return cacheQueryOne('sys_user', query={ 'sys_id': id })
-
-def userInGroups(username):
-    """
-    """
-    me = userByUsername(username)
-    ret = []
-    q = snow.query(table='sys_user_grmember', query={ 'user': me['sys_id'] })
-    for g in q.get_all():
-        id = g['group']['value']
-        group = groupById(id)
-        ret.append(group['name'])
-    return ret
-
-
-def userInGroup(username, group):
-    """
-    Return True is the user with the offered username is in the group with
-    the offered group name, False otherwise.
-    """
-
-    groups = userInGroups(username)
-    for g in groups: 
-        if g == group: return True
-    return False
-
-def userByName(name):
-    """
-    """
-    return cacheQueryOne('sys_user', query={ 'name': name })
-
-def userByUsername(name):
-    """
-    """
-    return cacheQueryOne('sys_user', query={ 'user_name': name })
-
-def userLinkName(user):
-    """
-    """
-    if isinstance(user, dict):
-        if 'value' in user:
-            if user['value'] == u'0': return '*nobody*'
-            u = pyfnalsnow.userById(user['value'])
-            return u['name']
-    return user
-
-def userLinkUsername(user):
-    """
-    """
-    if isinstance(user, dict):
-        if 'value' in user:
-            if user['value'] == u'0': return '*nobody*'
-            u = pyfnalsnow.userById(user['value'])
-            return u['user_name']
-    return user
-
-def tktSearch(table, **args):
-    """
-    """
-
-    try:
-        search = tableSwitch(table, 'tktFilter', **args)
-        q = snow.query(table=table, query=str(search))
-        return q.get_all()
-    except UnexpectedResponse, e:
-        print "%s" % e
+    type = tktType(number)
+    o = snow.query(table=type, query={'number': number})
+    return o.get_one()
 
 def tktHistory(tkt):
     """
+    Given a full ticket, query for associated sys_history_line objects.
     """
 
     number = tkt['number']
@@ -320,8 +247,100 @@ def tktJournalEntries(tkt):
 
     for i in sorted(journals.iterkeys()):
         ret.append(journals[i])
-
     return ret
+
+def tktSearch(table, **args):
+    """
+    Given a table name, search the table using tktFilter().
+    """
+
+    try:
+        search = tableSwitch(table, 'tktFilter', **args)
+        q = snow.query(table=table, query=str(search))
+        return q.get_all()
+    except UnexpectedResponse, e:
+        print "%s" % e
+
+def tktUpdate(number, updateHash):
+    """
+    Update a ticket number by number.  We will look up the correct table
+    type based on the ticket number as well.  Returns a single object.
+    """
+    type = tktType(number)
+    o = snow.query(table=type, query={'number': number})
+    update = o.update(updateHash)
+    return update
+
+def userById(id):
+    """
+    Pull a sys_user entry by sys_id.  Goes through cacheQueryOne(), so
+    future falls are cached.
+    """
+    return cacheQueryOne('sys_user', query={ 'sys_id': id })
+
+def userByName(name):
+    """
+    Pull a sys_user entry by name.  Goes through cacheQueryOne(), so
+    future falls are cached.
+    """
+    return cacheQueryOne('sys_user', query={ 'name': name })
+
+def userByUsername(name):
+    """
+    Pull a sys_user entry by user_name.  Goes through cacheQueryOne(), so
+    future falls are cached.
+    """
+    return cacheQueryOne('sys_user', query={ 'user_name': name })
+
+def userInGroup(username, group):
+    """
+    Return True is the user with the offered username is in the group with
+    the offered group name, False otherwise.
+    """
+
+    groups = userInGroups(username)
+    for g in groups:
+        if g == group: return True
+    return False
+
+def userInGroups(username):
+    """
+    Given a username, return a list of group names that this user is a
+    member of.
+    """
+    me = userByUsername(username)
+    ret = []
+    q = snow.query(table='sys_user_grmember', query={ 'user': me['sys_id'] })
+    for g in q.get_all():
+        id = g['group']['value']
+        group = groupById(id)
+        ret.append(group['name'])
+    return ret
+
+def userLinkName(user):
+    """
+    Convert a 'user' style object to a name.  This is the data structure 
+    that sometimes appears in the middle of standard results.
+    """
+    if isinstance(user, dict):
+        if 'value' in user:
+            if user['value'] == u'0': return '*nobody*'
+            u = pyfnalsnow.userById(user['value'])
+            return u['name']
+    return user
+
+def userLinkUsername(user):
+    """
+    Convert a 'user' style object to a user_name.  This is the data structure 
+    that sometimes appears in the middle of standard results.
+    """
+    if isinstance(user, dict):
+        if 'value' in user:
+            if user['value'] == u'0': return '*nobody*'
+            u = pyfnalsnow.userById(user['value'])
+            return u['user_name']
+    return user
+
 
 #########################################################################
 ### Ticket Internals ####################################################
@@ -331,7 +350,7 @@ def tktNumberParse(number):
     """
     Convert human-provided ticket numbers to the correct style for
     ServiceNow.  This means a) set the length correctly by ticket type and
-    b) if we don't have a type, assume INC.  
+    b) if we don't have a type, assume INC.
 
     Note that this doesn't cover the case where we get a number that is
     too long.

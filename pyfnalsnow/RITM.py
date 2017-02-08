@@ -68,8 +68,6 @@ def tktIsResolved(tkt):
     """
     Returns True if the RITM is resolved, False otherwise.
     """
-    print pprint.pprint(tkt)
-
     if tkt['state'] == '3':  return True        # closed
     if tkt['state'] == '24': return True        # cancelled
     if tkt['state'] == '23': return True        # work in progress?  huh?
