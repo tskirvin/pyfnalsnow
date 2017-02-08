@@ -13,7 +13,7 @@ config_file = '/etc/snow/config.yaml'
 import pyfnalsnow
 import getpass, optparse, pprint, sys
 
-description = "assign an sc_req_item object to a user/group in SNOW"
+description = "assign a SNOW object to a user/group in SNOW"
 usage = "%prog [options] NUMBER"
 
 #########################################################################
@@ -92,9 +92,9 @@ def main():
     if opt.debug:
         print "Assigning tkt %s to %s/%s" % (number, g, u)
 
-    ritm = pyfnalsnow.tktUpdate(number, update)
+    tkt = pyfnalsnow.tktUpdate(number, update)
 
-    print u"\n".join(pyfnalsnow.tktString(ritm, 'base')).encode('utf-8').strip()
+    print u"\n".join(pyfnalsnow.tktString(tkt, 'base')).encode('utf-8').strip()
 
     sys.exit(0)
 
@@ -109,19 +109,19 @@ if __name__ == '__main__':
 
 =head1 NAME
 
-snow-ritm-assign - assign sc_req_item object ownership
+snow-tkt-assign - assign SNOW object ownership
 
 =head1 SYNOPSIS
 
-snow-ritm-assign RITM456995 --user richt
+snow-tkt-assign RITM456995 --user richt
 
-snow-ritm-assign RITM456995 --user richt --group 'SSI Internal'
+snow-tkt-assign RITM456995 --user richt --group 'SSI Internal'
 
-snow-ritm-assign RITM456995 --group 'SSI Internal'
+snow-tkt-assign RITM456995 --group 'SSI Internal'
 
 =head1 USAGE
 
-snow-ritm-assign sets the `assigment_group` and `assigned_to` fields for a
+snow-tkt-assign sets the `assigment_group` and `assigned_to` fields for a
 specific sc_req_item object (RITM) in Service Now (SNOW), and prints the
 resulting output to STDOUT. 
 

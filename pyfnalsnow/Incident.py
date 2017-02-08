@@ -1,6 +1,6 @@
-""" 
+"""
 pyfnalsnow.Incident - parse Incident objects.  These are pretty much the
-"default" 
+"default"
 """
 
 #########################################################################
@@ -40,7 +40,7 @@ state = {
 
 def tktFilter(status='open', **args):
     """
-    Filter tickets.  
+    Filter tickets.
     """
 
     extra = []
