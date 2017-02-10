@@ -11,7 +11,7 @@ config_file = '/etc/snow/config.yaml'
 #########################################################################
 
 import pyfnalsnow
-import getpass, optparse, sys
+import getpass, optparse, requests, sys
 
 description = "query for incident objects in SNOW"
 usage = "%prog [options] subject"
@@ -23,10 +23,28 @@ template = {
     }
 }
 
-
 #########################################################################
 ### Subroutines #########################################################
 #########################################################################
+
+def submitRequest(request):
+    """
+    """
+    url = "%s/service.do" % (config['servicenow']['url'])
+    auth = (config['servicenow']['username'], config['servicenow']['password'])
+    headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
+
+    response = requests.post(url, auth=auth, headers=headers, json=request)
+    try:
+        j = response.json()
+        ritm = j['items'][0]['number']
+        req  = j['request']
+        if opt.debug: print "%s / %s" % (req, ritm)
+        return (req, ritm)
+    except Exception, e:
+        print "error: could not create request - %s" % e
+        sys.exit(-1)
+
 
 #########################################################################
 ### main () #############################################################
@@ -52,6 +70,7 @@ def main():
     subject = ' '.join(args).rstrip()
     text = '\n'.join(sys.stdin.readlines()).rstrip()
 
+    global config
     config = pyfnalsnow.pyfnalsnow_config(opt.config)
     snow = pyfnalsnow.connect()
 
@@ -62,20 +81,29 @@ def main():
         print "no matching SNOW user: %s" % opt.user
         sys.exit(-1)
 
+    if opt.group != '':
+        try:
+            g = pyfnalsnow.groupByName(opt.group)
+        except Exception, e:
+            print "group %s does not exist in SNOW" % opt.group
+            sys.exit(-1)
+
     base = template
-    #            "short_description": string,
-    #        "requested_for": sys_id (as a string) of a person,
-    #        "description": string
     base['catalog_item']['vars']['short_description'] = subject
     base['catalog_item']['vars']['description'] = text
-    # base['catalog_item']['vars']['requested_for'] = u['sys_id']
-    base['catalog_item']['vars']['requested_for'] = u['user_name']
-    if opt.group != '':
-        base['catalog_item']['vars']['assignment_group'] = opt.group
+    base['catalog_item']['vars']['requested_for'] = u['sys_id']
 
-    # ret = pyfnalsnow.tktCreate('request', base)
-    ret = pyfnalsnow.tktCreate('request', base)
-    print ret
+    if opt.debug: print base
+
+    ret = submitRequest(base)
+    for i in ret:
+        if opt.group != '':
+            tkt = pyfnalsnow.tktUpdate(i, {'assignment_group': opt.group})
+        else:
+            tkt = pyfnalsnow.tktByNumber(i)
+        print u"\n".join(pyfnalsnow.tktString(tkt, \
+            type='short')).encode('utf-8').strip()
+        print ""
 
     sys.exit(0)
 
@@ -90,24 +118,19 @@ if __name__ == '__main__':
 
 =head1 NAME
 
-snow-ritm-list - search for sc_req_item objects by current status
+snow-ritm-create - create a new Request/RITM pair in Service Now
 
 =head1 SYNOPSIS
 
-B<snow-ritm-list>
+echo "my body" | B<snow-ritm-create> "my subject"
 
-B<snow-ritm-list> --group 'Service Desk'
-
-B<snow-ritm-list> --query group --user esimm
-
-B<snow-ritm-list> --query assign --user tskirvin
-
-B<snow-ritm-list> --query submit --user tskirvin
+echo "my body" | B<snow-ritm-create> "my subject" --group "SSI Internal"
 
 =head1 USAGE
 
-snow-ritm queries Service Now (SNOW) to pull down data about a specific
-sc_req_item object (RITM), and prints the output to STDOUT.  
+snow-ritm-create creates a new sc_request (request) and sc_req_item (RITM)
+pair in Service Now (SNOW), and prints a short summary of the new objects 
+to STDOUT.  
 
 =head1 OPTIONS
 
@@ -124,52 +147,20 @@ If set, prints some debugging data.
 
 =item --group I<group>
 
-Query for tickets associated with a given group.  The default is to search
-for each group associated with the selected/default user.
-
-=item --query I<type>
-
-What kind of search output do you want to see?  Defaults to 'group'.
-
-=over 2
-
-=item assign
-
-Searches for tickets assigned to the selected username.
-
-=item group
-
-Searches for tickets in the selected group.  Default.
-
-=item submit
-
-Searches for tickets submitted by the selected username.
-
-=back
-
-=item --subquery I<query>
-
-How do you want to modify the kind of search?  Default: 'unresolved'
-
-=over 2
-
-=item closed
-
-Show closed tickets.
-
-=item open
-
-Show open tickets.
-
-=item unresolved
-
-Show unresolved tickets.
-
-=back
+If offered, sets the ownership of the request/RITM to this group.  This
+group must exist.
 
 =item --user I<username>
 
-Selects the user for which we will query.  Defaults to the invoker.
+Set the requestor to this individual.  The default is the invoking person.
+
+=item SUBJECT
+
+The "short description" should come on the command line.
+
+=item STDIN
+
+The "text" of the ticket should come on STDIN.
 
 =back
 

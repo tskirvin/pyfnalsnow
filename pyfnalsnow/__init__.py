@@ -15,6 +15,7 @@ cache = {}
 modules = {
     'incident':    'pyfnalsnow.Incident',
     'sc_req_item': 'pyfnalsnow.RITM',
+    'sc_request':  'pyfnalsnow.Request',
 }
 
 types = {
@@ -31,7 +32,7 @@ types = {
 #########################################################################
 
 import pprint, pysnow, re, sys, yaml
-import pyfnalsnow.Incident, pyfnalsnow.RITM
+import pyfnalsnow.Incident, pyfnalsnow.Request, pyfnalsnow.RITM
 
 #########################################################################
 ### Definitions #########################################################

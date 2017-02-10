@@ -7,7 +7,8 @@ ritm:
 
 ritm-create:
 	@echo "ritm-create"
-	@ echo "hi" | ../usr/bin/snow-ritm-create "testing"
+	@ echo "hi" | ../usr/bin/snow-ritm-create --group $(GROUP) "testing"  --debug
+	@ echo "hi" | ../usr/bin/snow-ritm-create "testing" --debug
 
 ritm-debug:
 	@echo "ritm-debug"
@@ -15,19 +16,19 @@ ritm-debug:
 
 ritm-assign:
 	@echo "ritm-assign"
-	@ ../usr/bin/snow-ritm-assign $(RITM) --user $(USER) --group '$(GROUP)'
+	@ ../usr/bin/snow-tkt-assign $(RITM) --user $(USER) --group '$(GROUP)'
 
 ritm-assign-no-user:
 	@echo "ritm-assign-no-user"
-	@ ../usr/bin/snow-ritm-assign $(RITM) --group $(GROUP) --debug
+	@ ../usr/bin/snow-tkt-assign $(RITM) --group $(GROUP) --debug
 
 ritm-assign-no-group:
 	@echo "ritm-assign-no-group"
-	@ ../usr/bin/snow-ritm-assign $(RITM) --user $(USER) --debug
+	@ ../usr/bin/snow-tkt-assign $(RITM) --user $(USER) --debug
 
 ritm-audit:
 	@echo "ritm-audit"
-	@ ../usr/bin/snow-ritm $(RITM) --type audit
+	@ ../usr/bin/snow-tkt $(RITM) --type audit
 
 ritm-journal:
 	@echo "ritm-journal"
@@ -47,7 +48,7 @@ ritm-search:
 
 ritm-unassign:
 	@echo "ritm-unassign"
-	@ ../usr/bin/snow-ritm-unassign $(RITM)
+	@ ../usr/bin/snow-tkt-unassign $(RITM)
 
 PASS=$(shell cat /etc/snow/config.yaml | shyaml get-value servicenow.password)
 USER=$(shell cat /etc/snow/config.yaml | shyaml get-value servicenow.username)

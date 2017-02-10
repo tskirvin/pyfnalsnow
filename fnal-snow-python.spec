@@ -1,6 +1,6 @@
 Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
-Version:        0.9.0
+Version:        1.0.0
 Release:        0%{?dist}
 #Packager:       Tim Skirvin <tskirvin@fnal.gov>
 Group:          Applications/System
@@ -48,5 +48,5 @@ done
 %{python_sitelib}/*egg-info
 
 %changelog
-* Wed Feb  8 2017   Tim Skirvin <tskirvin@fnal.gov> 0.9.0-0
-- initial .spec file
+* Fri Feb 10 2017   Tim Skirvin <tskirvin@fnal.gov> 1.0.0-0
+- initial release, still missing resolve/reopen and incident-create

@@ -1,10 +1,10 @@
 {
-    'catalog_item': {
-        'sys_id': '18c27227042950008638553dd6544037', 
-        'vars': {
-            'short_description': 'testing', 
-            'requested_for': 'tskirvin',
-            'description': 'hi'
+    catalog_item: {
+        sys_id: "18c27227042950008638553dd6544037", 
+        vars: {
+            short_description: "testing", 
+            requested_for: "b257d72b98327c404478f9749d9cf2c3",
+            description: "hi"
         }
     }
 }
