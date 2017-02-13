@@ -242,8 +242,9 @@ def tktJournalEntries(tkt):
     ret = []
     journals = {}
     for i in entries:
-        key = i['sys_created_on']
-        journals[key] = i
+        if 'sys_created_on' in i:
+            key = i['sys_created_on']
+            journals[key] = i
 
     for i in sorted(journals.iterkeys()):
         ret.append(journals[i])

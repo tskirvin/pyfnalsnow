@@ -219,7 +219,7 @@ def tktStringJournal(tkt):
     for i in journals:
         ret.append('  Entry %s' % count)
         count = count + 1
-        ret.extend(formatTextField('Date', formatDate(i['sys_created_on']), **depth1))
+        ret.extend(formatTextField('Date', formatDate(tktCreatedOn(tkt)), **depth1))
         ret.extend(formatTextField('Created By', i['sys_created_by'], **depth1))
         ret.extend(formatTextField('Type', i['element'], **depth1))
         ret.append('')
@@ -348,11 +348,21 @@ def tktStringSummary(tkt):
 ## Given a ticket with all fields, pull out printable information.  This
 ## is primarily used internally.
 
+def _FieldOrEmpty(tkt, *field):
+    """
+    """
+
+    for i in field:
+        if i in tkt: return tkt[i]
+
+    return None
+
 def tktAssignedPerson(tkt): return pyfnalsnow.userLinkName(tkt['assigned_to'])
 def tktAssignedGroup(tkt):  return pyfnalsnow.groupLink(tkt['assignment_group'])
 def tktCallingPerson(tkt):  return tkt['caller_id']
+def tktCreatedOn(tkt):      return _FieldOrEmpty(tkt, 'sys_created_on')
 def tktDateResolved(tkt):   return tkt['resolved_at']
-def tktDateSubmit(tkt):     return tkt['opened_at']
+def tktDateSubmit(tkt):     return _FieldOrEmpty(tkt, 'opened_at')
 def tktDateUpdate(tkt):     return tkt['sys_updated_on']
 def tktNumber(tkt):         return tkt['number']
 def tktPriority(tkt):       return tkt['priority']
