@@ -20,7 +20,8 @@ template = {
     'catalog_item': {
         'sys_id': '18c27227042950008638553dd6544037',
         'vars': {
-            'priority': 3
+            'priority': 3,
+            'urgency': 3
         }
     }
 }
