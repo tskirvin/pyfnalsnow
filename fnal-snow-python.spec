@@ -1,6 +1,6 @@
 Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
-Version:        1.0.1
+Version:        1.0.2
 Release:        0%{?dist}
 #Packager:       Tim Skirvin <tskirvin@fnal.gov>
 Group:          Applications/System
@@ -8,7 +8,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Source0:        %{name}-%{version}-%{release}.tar.gz
 BuildArch:      noarch
 
-Requires:       python python-iso8601 
+Requires:       python python-iso8601
 # also pysnow, no rpm available for that yet
 BuildRequires:  rsync
 Vendor:         FNAL USCMS-T1
@@ -48,6 +48,9 @@ done
 %{python_sitelib}/*egg-info
 
 %changelog
+* Wed Feb 07 2018   Tim Skirvin <tskirvin@fnal.gov> 1.0.2-0
+- snow-ritm-create - don't add extra newlines to the body of the ritms
+
 * Mon Feb 13 2017   Tim Skirvin <tskirvin@fnal.gov> 1.0.1-0
 - snow-ritm-create - now uses a config file template for new entries; adds
   support for urgency, priority, and basic categorization

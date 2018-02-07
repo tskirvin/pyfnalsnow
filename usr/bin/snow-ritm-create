@@ -75,7 +75,7 @@ def main():
         sys.exit(-1)
 
     subject = ' '.join(args).rstrip()
-    text = '\n'.join(sys.stdin.readlines()).rstrip()
+    text = ''.join(sys.stdin.readlines()).rstrip()
 
     global config
     config = pyfnalsnow.pyfnalsnow_config(opt.config)
