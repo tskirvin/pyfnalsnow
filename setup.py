@@ -14,4 +14,5 @@ setup (
   maintainer_email = 'tskirvin@fnal.gov',
   package_dir      = { 'pyfnalsnow': 'pyfnalsnow' },
   py_modules       = pyfiles,
+  install_requires = ['pysnow>=0.7.4']
 )

@@ -34,6 +34,9 @@ types = {
 import pprint, pysnow, re, sys, yaml
 import pyfnalsnow.Incident, pyfnalsnow.Request, pyfnalsnow.RITM
 
+import urllib3
+urllib3.disable_warnings()
+
 #########################################################################
 ### Definitions #########################################################
 #########################################################################
@@ -84,8 +87,7 @@ def connect():
     snow = pysnow.Client(
         instance=config['servicenow']['instance'],
         user=config['servicenow']['username'],
-        password=config['servicenow']['password'],
-        raise_on_empty=False
+        password=config['servicenow']['password']
     )
 
     return snow
@@ -108,12 +110,22 @@ def cacheQueryOne(table, query):
     if q in cache[table]:
         return cache[table][q]
     else:
-        r = snow.query(table=table, query=query)
         try:
-            result = r.get_one()
-        except:
-            result = '(no match)'
-        cache[table][q] = r.get_one()
+            r = snow.resource(api_path='/table/%s' % table).get(
+                query=query,
+                stream=True
+            )
+            entries = []
+            for record in r.all():
+                entries.append(record)
+            if len(entries) == 0:
+                raise Exception('no matching entries (%s vs %s)' % (query, table))
+            elif len(entries) > 1:
+                raise Exception('too many entries (%s) (%s vs %s)' % (len(entries), query, table))
+            result = entries[0]
+        except Exception, e:
+            result = { 'value': '(no match)' }
+        cache[table][q] = result
     return cache[table][q]
 
 def tableSwitch(table, function, **args):
@@ -209,8 +221,21 @@ def tktByNumber(number):
     """
 
     type = tktType(number)
-    o = snow.query(table=type, query={'number': number})
-    return o.get_one()
+
+    r = snow.resource(api_path='/table/%s' % type).get(
+        query={'number': number},
+        stream=True
+    )
+
+    entries = []
+    for record in r.all():
+        entries.append(record)
+
+    if len(entries) == 0:
+        raise Exception('%s: no matching entries' % number)
+    elif len(entries) > 1:
+        raise Exception('%s: too many entries (%s)' % number, len(entries))
+    return entries[0]
 
 def tktHistory(tkt):
     """
@@ -220,8 +245,12 @@ def tktHistory(tkt):
     number = tkt['number']
 
     s = snow
-    q = s.query(table='sys_history_line', query={ 'set.id': tkt['sys_id'] })
-    entries = q.get_all()
+    r = snow.resource(api_path='/table/%s' % 'sys_history_line').get(
+        query={ 'set.id': tkt['sys_id'] },
+        stream=True
+    )
+    entries = []
+    for record in r.all(): entries.append(record)
 
     ret = []
     for i in entries:
@@ -235,9 +264,12 @@ def tktJournalEntries(tkt):
 
     number = tkt['number']
 
-    s = snow
-    q = s.query(table='sys_journal_field', query={ 'element_id': tkt['sys_id'] })
-    entries = q.get_all()
+    r = snow.resource(api_path='/table/%s' % 'sys_journal_field').get(
+        query={ 'element_id': tkt['sys_id'] },
+        stream=True
+    )
+    entries = []
+    for record in r.all(): entries.append(record)
 
     ret = []
     journals = {}
@@ -258,20 +290,18 @@ def tktSearch(table, **args):
 
     try:
         search = tableSwitch(table, 'tktFilter', **args)
-        q = snow.query(table=table, query=str(search))
+        r = snow.resource(api_path='/table/%s' % table).get(query=search, stream=True)
     except Exception, e:
         raise e
 
     ret = []
-    for i in q.get_all(): 
+    for i in r.all():
         if i: ret.append(i)
     return ret
 
 def tktCreate(table, entry, **args):
     """
     """
-    print table
-    print entry
     return snow.insert(table, entry, **args)
 
 def tktUpdate(number, updateHash):
@@ -280,9 +310,15 @@ def tktUpdate(number, updateHash):
     type based on the ticket number as well.  Returns a single object.
     """
     type = tktType(number)
-    o = snow.query(table=type, query={'number': number})
-    update = o.update(updateHash)
-    return update
+    r = snow.resource(api_path='/table/%s' % type).update(
+        query={'number': number},
+        payload=updateHash
+    )
+    
+    ret = []
+    for i in r.all(): ret.append(i)
+    if len(ret) >= 1: return ret[0]
+    return []
 
 def userById(id):
     """
@@ -323,16 +359,20 @@ def userInGroups(username):
     """
     me = userByUsername(username)
     ret = []
-    q = snow.query(table='sys_user_grmember', query={ 'user': me['sys_id'] })
-    for g in q.get_all():
-        id = g['group']['value']
-        group = groupById(id)
-        ret.append(group['name'])
+    if me:
+        r = snow.resource(api_path='/table/%s' % 'sys_user_grmember').get(
+            query={ 'user': me['sys_id'] },
+            stream=True
+        )
+        for g in r.all():
+            id = g['group']['value']
+            group = groupById(id)
+            ret.append(group['name'])
     return ret
 
 def userLinkName(user):
     """
-    Convert a 'user' style object to a name.  This is the data structure 
+    Convert a 'user' style object to a name.  This is the data structure
     that sometimes appears in the middle of standard results.
     """
     if isinstance(user, dict):
@@ -344,7 +384,7 @@ def userLinkName(user):
 
 def userLinkUsername(user):
     """
-    Convert a 'user' style object to a user_name.  This is the data structure 
+    Convert a 'user' style object to a user_name.  This is the data structure
     that sometimes appears in the middle of standard results.
     """
     if isinstance(user, dict):

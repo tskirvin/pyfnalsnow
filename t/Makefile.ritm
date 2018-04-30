@@ -1,14 +1,15 @@
-RITM?= 'RITM456995'
+RITM?= 'RITM0676865'
+#RITM?= 'RITM456995'
 #RITM?= 'RITM501099'
 
 ritm:
 	@echo "ritm"
-	@ ../usr/bin/snow-tkt $(RITM)
+	 ../usr/bin/snow-tkt $(RITM)
 
 ritm-create:
 	@echo "ritm-create"
-	@ echo "hi" | ../usr/bin/snow-ritm-create --group $(GROUP) "testing"  --debug
-	@ echo "hi" | ../usr/bin/snow-ritm-create "testing" --debug
+	@echo "hi" | ../usr/bin/snow-ritm-create --group $(GROUP) "testing" --debug
+	@echo "hi" | ../usr/bin/snow-ritm-create "testing" --debug
 
 ritm-debug:
 	@echo "ritm-debug"
@@ -16,15 +17,19 @@ ritm-debug:
 
 ritm-assign:
 	@echo "ritm-assign"
-	@ ../usr/bin/snow-tkt-assign $(RITM) --user $(USER) --group '$(GROUP)'
+	 ../usr/bin/snow-tkt-assign $(RITM) --user tskirvin --group $(GROUP)
 
 ritm-assign-no-user:
 	@echo "ritm-assign-no-user"
-	@ ../usr/bin/snow-tkt-assign $(RITM) --group $(GROUP) --debug
+	../usr/bin/snow-tkt-assign $(RITM) --group $(GROUP) --debug
+
+ritm-assign-clear:
+	@echo "ritm-assign-clear"
+	../usr/bin/snow-tkt-assign $(RITM) --user '' --group '' --debug
 
 ritm-assign-no-group:
 	@echo "ritm-assign-no-group"
-	@ ../usr/bin/snow-tkt-assign $(RITM) --user $(USER) --debug
+	../usr/bin/snow-tkt-assign $(RITM) --user tskirvin --debug
 
 ritm-audit:
 	@echo "ritm-audit"

@@ -1,6 +1,6 @@
 Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
-Version:        1.0.2
+Version:        1.1.0
 Release:        0%{?dist}
 #Packager:       Tim Skirvin <tskirvin@fnal.gov>
 Group:          Applications/System
@@ -48,6 +48,9 @@ done
 %{python_sitelib}/*egg-info
 
 %changelog
+* Mon Apr 30 2018   Tim Skirvin <tskirvin@fnal.gov> 1.1.0-0
+- now uses pysnow 0.7.4
+
 * Wed Feb 07 2018   Tim Skirvin <tskirvin@fnal.gov> 1.0.2-0
 - snow-ritm-create - don't add extra newlines to the body of the ritms
 

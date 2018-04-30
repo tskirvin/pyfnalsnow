@@ -43,11 +43,11 @@ def main():
 
     if g == 'default': 
         del update['assignment_group']
-        g = '*none*'
+        group = '*none*'
 
     if u == 'default': 
         update['assigned_to'] = ''
-        u = '*none*'
+        user = '*none*'
 
     ## connect to SNOW
     number = pyfnalsnow.tktNumberParse(args[0])
@@ -70,7 +70,12 @@ def main():
     user = ''
     if 'assigned_to' in update and update['assigned_to'] != 0:
         try:
-            user = pyfnalsnow.userByUsername(update['assigned_to'])
+            if update['assigned_to'] == '':
+                user = ''
+            else:
+                u = pyfnalsnow.userByUsername(update['assigned_to'])
+                user = u['user_name']
+
         except Exception, e:
             print "user %s does not exist in SNOW " % update['assigned_to']
             sys.exit(-1)
@@ -78,9 +83,10 @@ def main():
         if 'assignment_group' in update: g1 = update['assignment_group']
         else:          g1 = pyfnalsnow.groupLink(tkt['assignment_group'])
 
-        if not pyfnalsnow.userInGroup(update['assigned_to'], g1):
-            print "user %s is not in group %s" % (update['assigned_to'], g1)
-            sys.exit(-1)
+        if user != '':
+            if not pyfnalsnow.userInGroup(user, g1):
+                print "user %s is not in group '%s'" % (update['assigned_to'], g1)
+                sys.exit(-1)
 
     if tkt['assignment_group'] == '':
         if 'assignment_group' not in update:
@@ -90,11 +96,15 @@ def main():
             g = tkt['assignment_group']
     
     if opt.debug:
+        u = update['assigned_to']
+        g = update['assignment_group']
         print "Assigning tkt %s to %s/%s" % (number, g, u)
 
-    tkt = pyfnalsnow.tktUpdate(number, update)
-
-    print u"\n".join(pyfnalsnow.tktString(tkt, 'base')).encode('utf-8').strip()
+    try:
+        tkt = pyfnalsnow.tktUpdate(number, update)
+        print u"\n".join(pyfnalsnow.tktString(tkt, 'base')).encode('utf-8').strip()
+    except Exception, e:
+        print e
 
     sys.exit(0)
 
