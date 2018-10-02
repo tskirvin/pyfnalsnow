@@ -34,6 +34,8 @@ state = {
     '8': 'Cancelled'
 }
 
+resolve_code = 'Other (must describe below)'
+
 #########################################################################
 ### Subroutines #########################################################
 #########################################################################
@@ -73,7 +75,19 @@ def tktFilter(status='open', **args):
 
     return search
 
-
 def tktIsResolved(tkt):
     if tkt['state'] >= 4: return True
     else:                 return False
+
+def tktResolve(tkt, **args):
+    """
+    """
+
+    update = {
+        'close_code': 'resolve_code',
+        'close_notes': args['text'],
+        'incident_state': 6,
+        'resolved_by': args['user']
+    }
+
+    return pyfnalsnow.tktUpdate(tkt['number'], update)

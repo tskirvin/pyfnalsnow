@@ -54,7 +54,7 @@ urgency = {
 ### Configuration Subroutines ###########################################
 #########################################################################
 
-def pyfnalsnow_config(file):
+def pyfnalsnow_config(file=config_file):
     """
     Load a yaml configuration from a configuration file.  Sets a global
     'config' variable.
@@ -62,7 +62,7 @@ def pyfnalsnow_config(file):
     global config
 
     try:
-        config = yaml.load(open(config_file, 'r'))
+        config = yaml.load(open(file, 'r'))
     except IOError, e:
         print "file error:  %s" % e
         sys.exit (2)
@@ -257,6 +257,12 @@ def tktHistory(tkt):
         ret.append(i)
     return ret
 
+def tktResolve(tkt, **args):
+    """
+    Given a full ticket, close that ticket out.
+    """
+    return tableSwitch(table, 'tktResolve', **args)
+
 def tktJournalEntries(tkt):
     """
     Given a full ticket, query for journal entries.
@@ -393,7 +399,6 @@ def userLinkUsername(user):
             u = pyfnalsnow.userById(user['value'])
             return u['user_name']
     return user
-
 
 #########################################################################
 ### Ticket Internals ####################################################

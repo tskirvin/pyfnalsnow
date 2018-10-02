@@ -34,6 +34,7 @@ state = {
     24: 'Cancelled'
 }
 
+
 #########################################################################
 ### Subroutines #########################################################
 #########################################################################
@@ -84,3 +85,47 @@ def tktIsResolved(tkt):
     if tkt['state'] == '23': return True        # work in progress?  huh?
     if tkt['state'] == '11': return True        # Complete
     else:                    return False
+
+def tktResolve(tkt, goal=3, **args):
+    """
+    Trying to get to 3 (closed) or 24 (cancelled)
+    """
+
+    ###########################
+    ### valid state changes ###
+    ###########################
+
+    # -5 -> 23, 24
+    #  3 -> no way out
+    # 11 -> no way out
+    # 20 -> 21, 24(?)
+    # 21 -> 23, 24
+    # 23 -> -5, 3, 24
+    # 24 -> no way out
+
+    update = { 'goal': goal }
+
+    state = tkt['state']
+    if state == goal: return tkt
+
+    if state == -5:
+        if   goal ==  3: update['status'] = 23
+        elif goal == 24: update['status'] = 24
+        else: update['state'] = goal
+    elif state ==  3: raise Exception('cannot change state from 3')
+    elif state == 11: raise Exception('cannot change state from 11')
+    elif state == 20:
+        if   goal ==  3: update['state'] = 21
+        elif goal == 24: update['state'] = 24
+        else: update['state'] = goal
+    elif state == 21:
+        if   goal ==  3: update['status'] = 23
+        elif goal == 24: update['status'] = 24
+        else: raise Exception('not a valid goal for resolution')
+    elif state == 23:
+        if   goal ==  3: update['status'] = 3
+        elif goal == 24: update['status'] = 24
+        else: raise Exception('not a valid goal for resolution')
+    elif state == 24: raise Exception('cannot change state from 24')
+
+    return tktResolve (pyfnalsnow.tktUpdate(tkt, update), goal=goal, **args)

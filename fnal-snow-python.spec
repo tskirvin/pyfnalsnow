@@ -2,15 +2,14 @@ Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
 Version:        1.1.0
 Release:        0%{?dist}
-#Packager:       Tim Skirvin <tskirvin@fnal.gov>
 Group:          Applications/System
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Source0:        %{name}-%{version}-%{release}.tar.gz
 BuildArch:      noarch
 
-Requires:       python python-iso8601
+Requires:       python python-iso8601 python-requests
 # also pysnow, no rpm available for that yet
-BuildRequires:  rsync
+BuildRequires:  python rsync
 Vendor:         FNAL USCMS-T1
 License:        BSD
 URL:            http://www.fnal.gov/

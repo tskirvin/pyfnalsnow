@@ -39,3 +39,9 @@ def tktIsResolved(tkt):
     Returns True if the RITM is resolved, False otherwise.
     """
     return False
+
+def tktResolve(tkt, **args):
+    """
+    """
+
+    raise Exception ('not yet implemented')
