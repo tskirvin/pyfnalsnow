@@ -79,15 +79,18 @@ def tktIsResolved(tkt):
     if tkt['state'] >= 4: return True
     else:                 return False
 
-def tktResolve(tkt, **args):
+def tktResolve(tkt, update):
     """
+    Resolve an incident.  Set the state to 6, the resolution code to
+    something known, and the text and user fields come from the 'update'
+    hash.
     """
 
-    update = {
-        'close_code': 'resolve_code',
-        'close_notes': args['text'],
+    new = {
+        'close_code': resolve_code,
+        'close_notes': update['text'],
         'incident_state': 6,
-        'resolved_by': args['user']
+        'resolved_by': update['user']
     }
 
-    return pyfnalsnow.tktUpdate(tkt['number'], update)
+    return pyfnalsnow.tktUpdate(tkt['number'], new)

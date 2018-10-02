@@ -1,6 +1,6 @@
 Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
-Version:        1.1.0
+Version:        1.1.1
 Release:        0%{?dist}
 Group:          Applications/System
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -47,6 +47,10 @@ done
 %{python_sitelib}/*egg-info
 
 %changelog
+* Tue Oct 02 2018   Tim Skirvin <tskirvin@fnal.gov> 1.1.1-0
+- adding 'snow-tkt-resolve' and interfaces for Incident + RITM
+- various bug fixes
+
 * Mon Apr 30 2018   Tim Skirvin <tskirvin@fnal.gov> 1.1.0-0
 - now uses pysnow 0.7.4
 

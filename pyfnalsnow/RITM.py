@@ -86,9 +86,9 @@ def tktIsResolved(tkt):
     if tkt['state'] == '11': return True        # Complete
     else:                    return False
 
-def tktResolve(tkt, goal=3, **args):
+def tktResolve(tkt, update, goal=3):
     """
-    Trying to get to 3 (closed) or 24 (cancelled)
+    Trying to get to 3 (closed) or 24 (cancelled).  Not very well tested.
     """
 
     ###########################
@@ -103,29 +103,29 @@ def tktResolve(tkt, goal=3, **args):
     # 23 -> -5, 3, 24
     # 24 -> no way out
 
-    update = { 'goal': goal }
+    new = { 'goal': goal }
 
     state = tkt['state']
     if state == goal: return tkt
 
     if state == -5:
-        if   goal ==  3: update['status'] = 23
-        elif goal == 24: update['status'] = 24
-        else: update['state'] = goal
+        if   goal ==  3: new['status'] = 23
+        elif goal == 24: new['status'] = 24
+        else: new['state'] = goal
     elif state ==  3: raise Exception('cannot change state from 3')
     elif state == 11: raise Exception('cannot change state from 11')
     elif state == 20:
-        if   goal ==  3: update['state'] = 21
-        elif goal == 24: update['state'] = 24
-        else: update['state'] = goal
+        if   goal ==  3: new['state'] = 21
+        elif goal == 24: new['state'] = 24
+        else: new['state'] = goal
     elif state == 21:
-        if   goal ==  3: update['status'] = 23
-        elif goal == 24: update['status'] = 24
+        if   goal ==  3: new['status'] = 23
+        elif goal == 24: new['status'] = 24
         else: raise Exception('not a valid goal for resolution')
     elif state == 23:
-        if   goal ==  3: update['status'] = 3
-        elif goal == 24: update['status'] = 24
+        if   goal ==  3: new['status'] = 3
+        elif goal == 24: new['status'] = 24
         else: raise Exception('not a valid goal for resolution')
     elif state == 24: raise Exception('cannot change state from 24')
 
-    return tktResolve (pyfnalsnow.tktUpdate(tkt, update), goal=goal, **args)
+    return tktResolve (pyfnalsnow.tktUpdate(tkt, new), goal=goal, **args)
