@@ -86,10 +86,83 @@ def tktIsResolved(tkt):
     if tkt['state'] == '11': return True        # Complete
     else:                    return False
 
-def tktResolve(tkt, update, goal=3):
+def tktPending(tkt, **kwargs):
     """
-    Trying to get to 3 (closed) or 24 (cancelled).  Not very well tested.
+    Set the state of this RITM to 'pending' (-5).  As with tktResolve(),
+    this is complicated because you have to move from one state to
+    another in a very specific manner.
+
+    kwargs:
+      debug     Boolean; default False
+      reason    String; default is 'Customer'
     """
+
+    goal = -5
+
+    try:    debug = kwargs['debug']
+    except: debug = False
+
+    try:    reason = kwargs['reason']
+    except: reason = 'Customer'
+
+    new = {}
+
+    state = tkt['state']
+    if debug: print "initial state: %s  goal state: %s" % (state, goal)
+
+    if int(state) == int(goal): 
+       if debug: print "nothing to do (already in goal state)"
+       return tkt
+
+    if   int(state) == -5: raise Exception('at goal state')
+    elif int(state) ==  3: raise Exception('cannot change state from 3')
+    elif int(state) == 11: raise Exception('cannot change state from 11')
+    elif int(state) == 20: new['state'] = 21
+    elif int(state) == 21: new['state'] = 23
+    elif int(state) == 23: new['state'] = -5
+    elif int(state) == 24: raise Exception('cannot change state from 24')
+    else:                  raise Exception('invalid start state: %s' % state)
+
+    if debug: print "updating goal state to %s" % new['state']
+
+    if new['state'] == int(goal): 
+       if debug: print "going to goal state, will also set u_pending_reason"
+       new['u_pending_reason'] = reason
+
+    updated = pyfnalsnow.tktUpdate(tkt['number'], new)
+    return tktPending (updated, **kwargs)
+
+
+def tktResolve(tkt, update, **kwargs):
+    """
+    Resolve an RITM.  This is complicated because there are a very
+    specific list of state changes for the 'state' field that are
+    acceptable.  The goal must be either 3 (closed, default) or 24
+    (cancelled).
+
+    update is a dict of key/value pairs that will be used for making
+    updates.  You must pass in 'text' (will be used as close_notes).
+
+    kwargs:
+      debug     Boolean, default False
+      goal      Integer, default 3, must be either 3 or 24.
+
+    """
+
+    try:    goal = int(kwargs['goal'])
+    except: goal = 3
+
+    if   goal ==  3: pass
+    elif goal == 24: pass
+    else: raise Exception('invalid goal state: %d' % goal)
+
+    try: text = update['text']
+    except: raise Exception('required field: text')
+
+    try:    debug = kwargs['debug']
+    except: debug = False
+
+    new = {}
 
     ###########################
     ### valid state changes ###
@@ -103,29 +176,42 @@ def tktResolve(tkt, update, goal=3):
     # 23 -> -5, 3, 24
     # 24 -> no way out
 
-    new = { 'goal': goal }
-
     state = tkt['state']
-    if state == goal: return tkt
 
-    if state == -5:
-        if   goal ==  3: new['status'] = 23
-        elif goal == 24: new['status'] = 24
+    if debug: print "initial state: %s  goal state: %s" % (state, goal)
+
+    if int(state) == int(goal): 
+       if debug: print "nothing to do (already in goal state)"
+       return tkt
+
+    if int(state) == -5:
+        if   goal ==  3: new['state'] = 23
+        elif goal == 24: new['state'] = 24
         else: new['state'] = goal
-    elif state ==  3: raise Exception('cannot change state from 3')
-    elif state == 11: raise Exception('cannot change state from 11')
-    elif state == 20:
+    elif int(state) ==  3: raise Exception('cannot change state from 3')
+    elif int(state) == 11: raise Exception('cannot change state from 11')
+    elif int(state) == 20:
         if   goal ==  3: new['state'] = 21
         elif goal == 24: new['state'] = 24
         else: new['state'] = goal
-    elif state == 21:
-        if   goal ==  3: new['status'] = 23
-        elif goal == 24: new['status'] = 24
+    elif int(state) == 21:
+        if   goal ==  3: new['state'] = 23
+        elif goal == 24: new['state'] = 24
         else: raise Exception('not a valid goal for resolution')
-    elif state == 23:
-        if   goal ==  3: new['status'] = 3
-        elif goal == 24: new['status'] = 24
+    elif int(state) == 23:
+        if   goal ==  3: new['state'] = 3
+        elif goal == 24: new['state'] = 24
         else: raise Exception('not a valid goal for resolution')
-    elif state == 24: raise Exception('cannot change state from 24')
+    elif int(state) == 24: raise Exception('cannot change state from 24')
+    else:
+        raise Exception('invalid start state: %s' % state)
 
-    return tktResolve (pyfnalsnow.tktUpdate(tkt, new), goal=goal, **args)
+    if debug:
+        print "updating goal state to %s" % new['state']
+
+    if new['state'] == int(goal): 
+       if debug: print "going to goal state, will also set close_notes"
+       new['close_notes'] = text
+
+    updated = pyfnalsnow.tktUpdate(tkt['number'], new)
+    return tktResolve (updated, update, **kwargs)

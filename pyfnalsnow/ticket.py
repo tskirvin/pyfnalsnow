@@ -264,7 +264,6 @@ def tktStringRequestor(tkt):
 
     return ret
 
-
 def tktStringResolution(tkt):
     """
     Returns a printable string summarizing the resolution data - who

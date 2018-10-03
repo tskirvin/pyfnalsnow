@@ -7,3 +7,11 @@ incident:
 incident-search:
 	@echo "incident-search"
 	@ ../usr/bin/snow-incident-list  --debug
+
+incident-create:
+	@echo "incident-create"
+	@echo "hi" | ../usr/bin/snow-incident-create "testing" --ticket new-ssi-ticket.yaml --debug
+
+incident-resolve:
+	@echo "incident-resolve"
+	echo "testing a resolve" |  ../usr/bin/snow-tkt-resolve $(INCIDENT) --debug

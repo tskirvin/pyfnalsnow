@@ -1,6 +1,6 @@
 Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
-Version:        1.1.1
+Version:        1.2.0
 Release:        0%{?dist}
 Group:          Applications/System
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -47,6 +47,14 @@ done
 %{python_sitelib}/*egg-info
 
 %changelog
+* Wed Oct 03 2018   Tim Skirvin <tskirvin@fnal.gov> 1.2.0-0
+- wrote 'snow-tkt-pending' and interfaces for RITM
+- tested and confirmed that 'resolve' works for Incident + RITM
+  (also, test suite)
+- snow-incident-create
+- fixed Incident reporting for resolutions
+- many miscellaneous bug fixes
+
 * Tue Oct 02 2018   Tim Skirvin <tskirvin@fnal.gov> 1.1.1-0
 - adding 'snow-tkt-resolve' and interfaces for Incident + RITM
 - various bug fixes

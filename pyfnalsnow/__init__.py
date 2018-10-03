@@ -138,7 +138,7 @@ def tableSwitch(table, function, **args):
     else:
         raise Exception('unsupported table: %s' % type)
 
-def typeSwitch(tkt, function, *args):
+def typeSwitch(tkt, function, **kwargs):
     """
     Black Magic Ahoy!  Given a function name and a ticket, invokes that
     function *from the matching class*.
@@ -148,7 +148,7 @@ def typeSwitch(tkt, function, *args):
     type = tktType(number)
 
     if type in modules:
-        return eval("%s.%s" % (modules[type], function))(tkt, *args)
+        return eval("%s.%s" % (modules[type], function))(tkt, **kwargs)
     else:
         raise Exception('unsupported type: %s' % type)
 
@@ -257,11 +257,17 @@ def tktHistory(tkt):
         ret.append(i)
     return ret
 
-def tktResolve(tkt, *args):
+def tktPending(tkt, **kwargs):
+    """
+    Given a full ticket, set the status of that ticket to 'Pending'.
+    """
+    return typeSwitch(tkt, 'tktPending', **kwargs)
+
+def tktResolve(tkt, update, **kwargs):
     """
     Given a full ticket, close that ticket out.
     """
-    return typeSwitch(tkt, 'tktResolve', *args)
+    return typeSwitch(tkt, 'tktResolve', update=update, **kwargs)
 
 def tktJournalEntries(tkt):
     """

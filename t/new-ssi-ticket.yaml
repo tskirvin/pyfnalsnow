@@ -1,0 +1,15 @@
+## This ticket is a good start for creating tickets for the SSI team.
+
+ticket:
+    assignment_group:       'Scientific Server Support'
+    group:                  'Scientific Server Support'
+    impact:                 '4'
+    short_description:      '(no subject)'
+    u_categorization:       'Hardware -- Server -- Linux'
+    u_item:                 'Linux'
+    u_operational_category: 'Break/Fix'
+    u_page_primary:         '0'
+    u_reported_source:      'Event Monitoring'
+    urgency:                '4'
+    u_service:              'Scientific Services'
+    u_service_type:         'Server'

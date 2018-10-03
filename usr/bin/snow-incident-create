@@ -11,20 +11,10 @@ config_file = '/etc/snow/config.yaml'
 #########################################################################
 
 import pyfnalsnow
-import getpass, optparse, requests, sys
+import getpass, json, optparse, pprint, requests, sys, yaml
 
-description = "create an RITM in SNOW"
+description = "create an Incident in SNOW"
 usage = "%prog [options] subject"
-
-template = {
-    'catalog_item': {
-        'sys_id': '18c27227042950008638553dd6544037',
-        'vars': {
-            'priority': 3,
-            'urgency': 3
-        }
-    }
-}
 
 #########################################################################
 ### Subroutines #########################################################
@@ -33,17 +23,17 @@ template = {
 def submitRequest(request):
     """
     """
-    url = "%s/service.do" % (config['servicenow']['url'])
+    url = "%s/api/now/v1/table/incident" % (config['servicenow']['url'])
     auth = (config['servicenow']['username'], config['servicenow']['password'])
     headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
+
+    if opt.debug: print json.dumps(request, sort_keys=True, indent=4)
 
     response = requests.post(url, auth=auth, headers=headers, json=request)
     try:
         j = response.json()
-        ritm = j['items'][0]['number']
-        req  = j['request']
-        if opt.debug: print "%s / %s" % (req, ritm)
-        return (req, ritm)
+        incident = j['result']['number']
+        return incident
     except Exception, e:
         print "error: could not create request - %s" % e
         sys.exit(-1)
@@ -59,61 +49,53 @@ def main():
     p.add_option ('--debug', dest='debug', action='store_true', default=False)
     p.add_option ('--config', dest='config', action='store',
         default=config_file)
-    p.add_option ('--group', dest='group', action='store', default='')
-    p.add_option ('--priority', dest='priority', action='store', default=None)
-    p.add_option ('--urgency', dest='urgency', action='store', default=None)
-    p.add_option ('--category', dest='category', action='store', default=None)
-    p.add_option ('--user', dest='user', action='store', 
+    p.add_option ('--user', dest='user', action='store',
         default=getpass.getuser())
+    p.add_option ('--ticket', dest='ticket', action='store', default=None)
 
     global opt
     opt, args = p.parse_args()
-
 
     if len(args) < 1:
         p.print_help()
         sys.exit(-1)
 
+    ## load the ticket out of a YAML file
+    if opt.ticket == None:
+        p.print_help()
+        sys.exit(-1)
+    try:
+        with open(opt.ticket, 'r') as stream:
+            try:
+                ticket_stream = yaml.load(stream)
+                ticket = ticket_stream['ticket']
+            except yaml.YAMLError as exc:
+                print(exc)
+                sys.exit(-1)
+    except Exception,e :
+        print "could not open %s: %s" % (opt.ticket, e)
+        sys.exit(-1)
+
     subject = ' '.join(args).rstrip()
     text = ''.join(sys.stdin.readlines()).rstrip()
+
+    ticket['short_description'] = subject
+    ticket['description'] = text
 
     global config
     config = pyfnalsnow.pyfnalsnow_config(opt.config)
     snow = pyfnalsnow.connect()
 
-    ret = []
-
     u = pyfnalsnow.userByUsername(opt.user)
     if not u:
         print "no matching SNOW user: %s" % opt.user
         sys.exit(-1)
+    ticket['caller_id'] = u['user_name']
 
-    if opt.group != '':
-        try:
-            g = pyfnalsnow.groupByName(opt.group)
-        except Exception, e:
-            print "group %s does not exist in SNOW" % opt.group
-            sys.exit(-1)
-
-    base = template
-    base['catalog_item']['vars']['short_description'] = subject
-    base['catalog_item']['vars']['description'] = text
-    base['catalog_item']['vars']['requested_for'] = u['sys_id']
-
-    if opt.debug: print base
-
-    ret = submitRequest(base)
-    for i in ret:
-        t = config['ritm_template']
-        if opt.group    != '': t['assignment_group'] = opt.group
-        if opt.category: t['u_categorization'] = opt.category
-        if opt.priority: t['priority'] = opt.priority
-        if opt.urgency : t['urgency']  = opt.urgency
-
-        tkt = pyfnalsnow.tktUpdate(i, t)
-        print u"\n".join(pyfnalsnow.tktString(tkt, \
-            type='short')).encode('utf-8').strip()
-        print ""
+    number = submitRequest(ticket)
+    tkt = pyfnalsnow.tktByNumber(number)
+    print u"\n".join(pyfnalsnow.tktString(tkt, \
+        type='short')).encode('utf-8').strip()
 
     sys.exit(0)
 
@@ -128,22 +110,16 @@ if __name__ == '__main__':
 
 =head1 NAME
 
-snow-ritm-create - create a new Request/RITM pair in Service Now
+snow-incident-create - create an Incident in Service Now
 
 =head1 SYNOPSIS
 
-echo "my body" | B<snow-ritm-create> "my subject"
-
-echo "my body" | B<snow-ritm-create> "my subject" --group "SSI Internal"
+echo "body" | B<snow-ritm-list> --ticket F<YAML> 'subject'
 
 =head1 USAGE
 
-snow-ritm-create creates a new sc_request (request) and sc_req_item (RITM)
-pair in Service Now (SNOW), and prints a short summary of the new objects 
-to STDOUT.  
-
-Additional template data for the created item come out of the
-F<ritm_template> section of the config file.
+snow-incident-create creates a Service Now (SNOW) incident based on a template
+YAML file, a subject, and a body.
 
 =head1 OPTIONS
 
@@ -154,26 +130,31 @@ F<ritm_template> section of the config file.
 Where should we load our SNOW config data?  Defaults to
 F</etc/snow/config.yaml>.
 
+=item --ticket YAML_FILE
+
+We need a lot of default settings, so this is a start:
+
+    ticket:
+        assignment_group:       'Scientific Server Support'
+        group:                  'Scientific Server Support'
+        impact:                 '4'
+        short_description:      '(no subject)'
+        u_categorization:       'Hardware -- Server -- Linux'
+        u_item:                 'Linux'
+        u_operational_category: 'Break/Fix'
+        u_page_primary:         '0'
+        u_reported_source:      'Event Monitoring'
+        urgency:                '4'
+        u_service:              'Scientific Services'
+        u_service_type:         'Server'
+
+=item --user USER
+
+Default: the user that ran the script.
+
 =item --debug
 
 If set, prints some debugging data.
-
-=item --group I<group>
-
-If offered, sets the ownership of the request/RITM to this group.  This
-group must exist.
-
-=item --user I<username>
-
-Set the requestor to this individual.  The default is the invoking person.
-
-=item SUBJECT
-
-The "short description" should come on the command line.
-
-=item STDIN
-
-The "text" of the ticket should come on STDIN.
 
 =back
 
@@ -183,7 +164,7 @@ Tim Skirvin <tskirvin@fnal.gov>
 
 =head1 COPYRIGHT
 
-Copyright 2017, Fermi National Accelerator Laboratory
+Copyright 2018, Fermi National Accelerator Laboratory
 
 This program is free software; you may redistribute it and/or modify
 it under the same terms as Perl itself.

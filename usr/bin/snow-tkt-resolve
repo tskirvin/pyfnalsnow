@@ -32,7 +32,7 @@ def main():
     global opt
     opt, args = p.parse_args()
 
-    if len(args) < 2:
+    if len(args) != 1:
         p.print_help()
         sys.exit(-1)
 
@@ -48,9 +48,17 @@ def main():
     config = pyfnalsnow.pyfnalsnow_config(opt.config)
     snow = pyfnalsnow.connect()
 
-    tkt = pyfnalsnow.tktResolve(number, update)
+    try:
+        tkt_original = pyfnalsnow.tktByNumber(number)
+    except Exception, e:
+        print "could not find ticket matching %s: %s" % (number, e)
 
-    print u"\n".join(pyfnalsnow.tktString(tkt, 'base')).encode('utf-8').strip()
+    try:
+        tkt = pyfnalsnow.tktResolve(tkt_original, update, debug=opt.debug)
+        print u"\n".join(pyfnalsnow.tktStringResolution(tkt)).encode('utf-8').strip()
+    except Exception, e:
+        print "could not resolve ticket %s: %s" % (number, e)
+
 
     sys.exit(0)
 
@@ -73,7 +81,7 @@ echo TEXT | snow-tkt-resolve RITM456995
 
 =head1 USAGE
 
-snow-tkt-resolve closes a in Service Now (SNOW).
+snow-tkt-resolve closes a ticket (RITM or Incident) in Service Now (SNOW).
 
 =head1 OPTIONS
 

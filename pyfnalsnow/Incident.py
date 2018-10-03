@@ -18,7 +18,7 @@ from pyfnalsnow.ticket import tktStringDescription
 from pyfnalsnow.ticket import tktStringJournal
 from pyfnalsnow.ticket import tktStringPrimary
 from pyfnalsnow.ticket import tktStringRequestor
-from pyfnalsnow.ticket import tktStringResolution
+# from pyfnalsnow.ticket import tktStringResolution
 from pyfnalsnow.ticket import tktStringShort
 from pyfnalsnow.ticket import tktStringSummary
 
@@ -76,10 +76,40 @@ def tktFilter(status='open', **args):
     return search
 
 def tktIsResolved(tkt):
-    if tkt['state'] >= 4: return True
-    else:                 return False
+    if int(tkt['incident_state']) >= 4: return True
+    else:                               return False
 
-def tktResolve(tkt, update):
+def tktPending(tkt, **kwargs):
+    """
+    Set an incident to status 'pending'.  This isn't *really* a thing for
+    Incidents, though.
+
+    kwargs:
+      reason    String; default is 'Customer'
+    """
+
+    try:    reason = kwargs['reason']
+    except: reason = 'Customer'
+
+    new = { 'u_pending_reason': reason }
+    return pyfnalsnow.tktUpdate(tkt['number'], new)
+
+def tktStringResolution(tkt):
+    """
+    """
+    extra = {}
+    ret = []
+    ret.append("Resolution")
+    resolvedBy = pyfnalsnow.userLinkName(tkt['resolved_by'])
+    ret.extend(pyfnalsnow.ticket.formatTextField('Resolved By', resolvedBy,  **extra))
+    ret.extend(pyfnalsnow.ticket.formatTextField('Date', tkt['resolved_at'], **extra))
+    ret.append('')
+    ret.extend(pyfnalsnow.ticket.formatText(tkt['close_notes']), **extra)
+    ret.append('')
+
+    return ret
+
+def tktResolve(tkt, update, **kwargs):
     """
     Resolve an incident.  Set the state to 6, the resolution code to
     something known, and the text and user fields come from the 'update'

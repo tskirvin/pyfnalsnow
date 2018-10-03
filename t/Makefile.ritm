@@ -1,6 +1,7 @@
-RITM?= 'RITM0676865'
+#RITM?= 'RITM0676865'
 #RITM?= 'RITM456995'
 #RITM?= 'RITM501099'
+RITM?= 'RITM0715399'
 
 ritm:
 	@echo "ritm"
@@ -39,13 +40,13 @@ ritm-journal:
 	@echo "ritm-journal"
 	@echo "testing" | ../usr/bin/snow-tkt-journal $(RITM) 
 
-ritm-reopen:
-	@echo "ritm-reopen"
-	@ ../usr/bin/snow-ritm-reopen $(RITM)
+ritm-pending:
+	@echo "ritm-pending"
+	@../usr/bin/snow-tkt-pending $(RITM) --debug
 
 ritm-resolve:
 	@echo "ritm-resolve"
-	@ ../usr/bin/snow-ritm-resolve $(RITM) "testing a resolve"
+	echo "testing a resolve" |  ../usr/bin/snow-tkt-resolve $(RITM) --debug
 
 ritm-search:
 	@echo "ritm-search"
