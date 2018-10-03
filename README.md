@@ -61,8 +61,8 @@ This script requires [pysnow](https://github.com/rbw0/pysnow).  I would
 probably just update it directly except that I don't know for sure what
 changes we have made locally that don't apply to the "default" instance.
 
-Note that modern `pysnow` doesn't run on RHEL6 derivatives, so I've dropped
-support for that OS.
+To make this work on RHEL6 and a modern `pysnow` you probably want to
+install oauthlib 2.0.7: `pip install oauthlib==2.0.7`.
 
 ### Configuration File
 
