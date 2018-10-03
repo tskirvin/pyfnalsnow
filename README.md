@@ -1,6 +1,6 @@
 # pyfnalsnow
 
-This module provides libraries and scripts to interact with the FNAL
+This module provides Python libraries and scripts to interact with the FNAL
 instance of <http://www.service-now.com>.
 
 ## Scripts
@@ -18,7 +18,7 @@ snow-tkt-list calls both.
 snow-tkt takes a ticket name and prints information about that ticket on
 STDOUT.
 
-### Update - many scripts
+### Update: many scripts
 
 Most of these do what they say on the tin:
 
@@ -28,9 +28,32 @@ Most of these do what they say on the tin:
 * snow-tkt-resolve - resolve a ticket
 * snow-tkt-unassign - assign a ticket back to the Help Desk
 
-### Delete
+### Delete: No Such Thing
 
-No such thing.  Data doesn't generally get removed from
+Data doesn't generally get removed from SNOW, at least not by users.
+
+## libraries
+
+### pyfnalsnow
+
+Creates and caches the connections to SNOW; caches searches; provides the
+CRUD interface that the various scripts depend on; provides tools for
+user/group searches; abstracts out the various ticket types (Incidents,
+Requests, Tasks, Requested Items, etc); and works with a central
+configuration file (`/etc/snow/config.yaml`) so that we can abstract
+server/authentication data away from the user.
+
+### pyfnalsnow.ticket
+
+This mostly provides template functions for the various 
+sub-tables (e.g. `Incident`): printing functions, mapping some functions
+to field names, etc.
+
+### pyfnalsnow.Incident, pyfnalsnow.Request, pyfnalsnow.RITM
+
+Functions that must be customized per-table are stored here; for instance,
+RITMs must change state several times to get to a pending or resolved
+state.
 
 ## Requirements
 
