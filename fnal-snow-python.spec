@@ -48,7 +48,8 @@ done
 
 %changelog
 * Wed Oct 03 2018   Tim Skirvin <tskirvin@fnal.gov> 1.2.0-0
-- wrote 'snow-tkt-pending' and interfaces for RITM
+- wrote snow-tkt-pending and interfaces for RITM
+- snow-ritm-resolve was merged into snow-tkt-resolve
 - tested and confirmed that 'resolve' works for Incident + RITM
   (also, test suite)
 - snow-incident-create

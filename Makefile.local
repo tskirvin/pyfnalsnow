@@ -29,10 +29,10 @@ TAR_EXCLUDE = --exclude *.pyc --exclude *.pyo
 ##############################################################################
 ## Set your own targets.  Note that these will appear at the top.
 
-all:            rpm-6-nosign sign-slf6 rpm-7-nosign sign-slf7
-confirm:        confirm-slf6 confirm-slf7
-copy:           copy-slf6 copy-slf7
-rpm-sign:       sign-slf6 sign-slf7
-test:           rpm-6-nosign
-deploy:			deploy-6 deploy-7
-7:				rpm-7-nosign sign-slf7
+all:            rpm-7-nosign sign-slf7
+confirm:        confirm-slf7
+copy:           copy-slf7
+rpm-sign:       sign-slf7
+test:           rpm-7-nosign
+deploy:			deploy-7
+7:				sign-slf7
