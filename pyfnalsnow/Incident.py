@@ -71,6 +71,12 @@ def tktFilter(status='open', **args):
         user = pyfnalsnow.userByUsername(args['submit'])
         extra.append('sys_created_by=%s' % user['user_name'])
 
+    if 'caller' in args:
+        user = pyfnalsnow.userByUsername(args['caller'])
+        try:
+            extra.append('caller_id=%s' % user['sys_id'])
+        except: pass
+
     search='^'.join(extra)
 
     return search

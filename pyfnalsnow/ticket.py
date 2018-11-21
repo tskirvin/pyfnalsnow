@@ -52,7 +52,7 @@ def formatText(text, **kwargs):
 
 def formatTextField(field, value, **kwargs):
     """
-    Given a field and a value, return a consistently-format using textwrap.  
+    Given a field and a value, return a consistently-format using textwrap.
     Takes the parameters 'prefix', 'width', and 'minWidth'
     """
 
@@ -146,7 +146,7 @@ def tktStringAssignee(tkt):
 
 def tktStringAudit(tkt):
     """
-    Return a printable array containing audit data for a ticket, skipping 
+    Return a printable array containing audit data for a ticket, skipping
     data where the 'update' field is 0.
     """
 
@@ -204,7 +204,7 @@ def tktStringDescription(tkt):
 def tktStringJournal(tkt):
     """
     Returns a printable array of journal entries for this ticket.  Gets
-    the journals using tktJournalEntries.  
+    the journals using tktJournalEntries.
     """
 
     depth1 = { 'prefix': '    ' }
@@ -231,7 +231,7 @@ def tktStringJournal(tkt):
 
 def tktStringPrimary(tkt):
     """
-    Returns a printable array of "primary" information about this ticket: 
+    Returns a printable array of "primary" information about this ticket:
     ticket number, summary (short description), status, submitted date,
     urgency, and priority.
     """
@@ -245,6 +245,8 @@ def tktStringPrimary(tkt):
         **extra))
     ret.extend(formatTextField('Urgency', tktUrgency(tkt), **extra))
     ret.extend(formatTextField('Priority', tktPriority(tkt), **extra))
+    if 'cmdb_ci' in tkt:
+        ret.extend(formatTextField('CI', tktCiName(tkt), **extra))
 
     return ret
 
@@ -255,7 +257,7 @@ def tktStringRequestor(tkt):
     """
     extra = {}
     ret = []
-    
+
     requestor = pyfnalsnow.userByUsername(tktRequestPerson(tkt))
 
     ret.append('Requestor Info')
@@ -328,13 +330,18 @@ def tktStringSummary(tkt):
     group  = tktAssignedGroup(tkt)
     status = tktStatus(tkt)
 
-    ret.append ( "%-12.12s %-15.15s %-15.15s %-17.17s %17.17s" %
+    ret.append ( "%-15.15s %-14.14s %-14.14s %-16.16s %17.17s" %
         (number, request, assign, group, status) );
 
     created = formatDate(tktDateSubmit(tkt))
     updated = formatDate(tktDateUpdate(tkt))
-    ret.append ( " Created: %-20.20s        Updated: %-20.20s" %
-        (created, updated) )
+    ci = _FieldOrEmpty(tkt, 'cmdb_ci')
+    if 'cmdb_ci' in tkt:
+      ci_text = tktCiName(tkt)
+    else: ci_text = 'no CI'
+
+    ret.append ( " Created: %-19.19s  Updated: %-19.19s  CI: %-15.15s" %
+        (created, updated, ci_text) )
 
     description = tktSummary(tkt)
     ret.append ( ' Subject: %-70.70s' % description)
@@ -350,7 +357,6 @@ def tktStringSummary(tkt):
 def _FieldOrEmpty(tkt, *field):
     """
     """
-
     for i in field:
         if i in tkt: return tkt[i]
 
@@ -359,6 +365,15 @@ def _FieldOrEmpty(tkt, *field):
 def tktAssignedPerson(tkt): return pyfnalsnow.userLinkName(tkt['assigned_to'])
 def tktAssignedGroup(tkt):  return pyfnalsnow.groupLink(tkt['assignment_group'])
 def tktCallingPerson(tkt):  return tkt['caller_id']
+def tktCiName(tkt):
+    try:
+        ci_entry = tkt['cmdb_ci']
+        ci = pyfnalsnow.ciById(ci_entry['value'])
+    except: return None
+
+    if 'name' in ci: return ci['name']
+    else:            return 'unknown'
+
 def tktCreatedOn(tkt):      return _FieldOrEmpty(tkt, 'sys_created_on')
 def tktDateResolved(tkt):   return tkt['resolved_at']
 def tktDateSubmit(tkt):     return _FieldOrEmpty(tkt, 'opened_at')

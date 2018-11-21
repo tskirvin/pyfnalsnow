@@ -188,6 +188,20 @@ def tktStringSummary(tkt):     return typeSwitch(tkt, 'tktStringSummary')
 ### ServiceNow Searching ################################################
 #########################################################################
 
+def ciById(id):
+    """
+    Pull a cmdb_ci by sys_id.  Goes through cacheQueryOne(), so
+    future calls are cached.
+    """
+    return cacheQueryOne('cmdb_ci', query={ 'sys_id': id })
+
+def ciByName(name):
+    """
+    Pull a cmdb_ci by name.  Goes through cacheQueryOne(), so
+    future calls are cached.
+    """
+    return cacheQueryOne('cmdb_ci', query={ 'name': name })
+
 def groupById(id):
     """
     Pull a sys_user_group entry by sys_id.  Goes through cacheQueryOne(), so
@@ -326,7 +340,7 @@ def tktUpdate(number, updateHash):
         query={'number': number},
         payload=updateHash
     )
-    
+
     ret = []
     for i in r.all(): ret.append(i)
     if len(ret) >= 1: return ret[0]

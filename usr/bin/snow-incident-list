@@ -39,9 +39,10 @@ def main():
     p.add_option ('--user', dest='user', action='store', 
         default=getpass.getuser())
     p.add_option ('--query', dest='query', action='store', default='group',
-        choices=['assign', 'group', 'submit'])
+        choices=['assign', 'group', 'submit', 'ci'])
     p.add_option ('--subquery', dest='subquery', action='store', default='open',
         choices=['closed', 'open', 'unresolved'])
+    p.add_option ('--caller', dest='caller', action='store', default=None)
 
     global opt
     opt, args = p.parse_args()
@@ -62,7 +63,7 @@ def main():
             ret.append("== Unresolved Incidents assigned to group '%s' ==" % g)
 
             for t in pyfnalsnow.tktSearch('incident', group=g, \
-                status='unresolved'):
+                status=opt.subquery, caller=opt.caller):
                 summary = pyfnalsnow.tktStringSummary(t)
                 ret.append('')
                 ret.extend(summary)
@@ -71,7 +72,7 @@ def main():
     elif opt.query == 'assign':
         ret.append("== Unresolved Incidents assigned to user '%s' ==" % opt.user)
         for t in pyfnalsnow.tktSearch('incident', assigned=opt.user,
-                status=opt.subquery):
+                status=opt.subquery, caller=opt.caller):
             summary = pyfnalsnow.tktStringSummary(t)
             ret.append('')
             ret.extend(summary)
@@ -80,7 +81,7 @@ def main():
     elif opt.query == 'submit':
         ret.append("== Unresolved Incidents submitted by user '%s' ==" % opt.user)
         for t in pyfnalsnow.tktSearch('incident', submit=opt.user,
-                status=opt.subquery):
+                status=opt.subquery, caller=opt.caller):
             summary = pyfnalsnow.tktStringSummary(t)
             ret.append('')
             ret.extend(summary)
@@ -136,6 +137,11 @@ F</etc/snow/config.yaml>.
 =item --debug
 
 If set, prints some debugging data.
+
+=item --caller I<username>
+
+Query for tickets by a given caller ID.  Meant to be used in conjunction
+with other searchers.  No default.
 
 =item --group I<group>
 
@@ -194,7 +200,7 @@ Tim Skirvin <tskirvin@fnal.gov>
 
 =head1 COPYRIGHT
 
-Copyright 2017, Fermi National Accelerator Laboratory
+Copyright 2017-2018, Fermi National Accelerator Laboratory
 
 This program is free software; you may redistribute it and/or modify
 it under the same terms as Perl itself.

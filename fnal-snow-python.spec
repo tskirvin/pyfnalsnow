@@ -1,6 +1,6 @@
 Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
-Version:        1.2.0
+Version:        1.2.1
 Release:        0%{?dist}
 Group:          Applications/System
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -47,6 +47,12 @@ done
 %{python_sitelib}/*egg-info
 
 %changelog
+* Wed Nov 21 2018   Tim Skirvin <tskirvin@fnal.gov> 1.2.1-0
+- add 'caller' search to snow-incident-list
+- snow-incident-list format changes - includes CI if available, some tweaking
+- add 'ciById' and 'ciByName' to __init__.py
+- Incident.py knows how to deal with CIs and caller searches
+
 * Wed Oct 03 2018   Tim Skirvin <tskirvin@fnal.gov> 1.2.0-0
 - wrote snow-tkt-pending and interfaces for RITM
 - snow-ritm-resolve was merged into snow-tkt-resolve
