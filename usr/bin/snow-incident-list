@@ -106,24 +106,24 @@ if __name__ == '__main__':
 
 =head1 NAME
 
-snow-ritm-list - search for sc_req_item objects by current status
+snow-incident-list - search for incident objects by current status
 
 =head1 SYNOPSIS
 
-B<snow-ritm-list>
+B<snow-incident-list>
 
-B<snow-ritm-list> --group 'Service Desk'
+B<snow-incident-list> --group 'Service Desk'
 
-B<snow-ritm-list> --query group --user esimm
+B<snow-incident-list> --query group --user esimm
 
-B<snow-ritm-list> --query assign --user tskirvin
+B<snow-incident-list> --query assign --user tskirvin
 
-B<snow-ritm-list> --query submit --user tskirvin
+B<snow-incident-list> --query submit --user tskirvin
 
 =head1 USAGE
 
-snow-ritm queries Service Now (SNOW) to pull down data about a specific
-sc_req_item object (RITM), and prints the output to STDOUT.  
+snow-incident-list queries Service Now (SNOW) to pull down data about a specific
+incident object (Incident), and prints the output to STDOUT.  
 
 =head1 OPTIONS
 
