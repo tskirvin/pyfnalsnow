@@ -1,6 +1,6 @@
 Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
-Version:        1.2.1
+Version:        1.2.2
 Release:        0%{?dist}
 Group:          Applications/System
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -47,6 +47,11 @@ done
 %{python_sitelib}/*egg-info
 
 %changelog
+* Wed Dec 05 2018   Tim Skirvin <tskirvin@fnal.gov> 1.2.2-0
+- snow-tkt-resolve - adds a 'goal' state so that we can cancel incidents 
+  instead of just resolving them
+- Incident.py - changes to match
+
 * Wed Nov 21 2018   Tim Skirvin <tskirvin@fnal.gov> 1.2.1-0
 - add 'caller' search to snow-incident-list
 - snow-incident-list format changes - includes CI if available, some tweaking

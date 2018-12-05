@@ -115,17 +115,19 @@ def tktStringResolution(tkt):
 
     return ret
 
-def tktResolve(tkt, update, **kwargs):
+def tktResolve(tkt, update, goal=6, **kwargs):
     """
-    Resolve an incident.  Set the state to 6, the resolution code to
-    something known, and the text and user fields come from the 'update'
-    hash.
+    Resolve an incident.  Set the state to 6 (or something from the call), the
+    resolution code to something known, and the text and user fields come from
+    the 'update' hash.
     """
+
+    if goal is None: goal = 6
 
     new = {
         'close_code': resolve_code,
         'close_notes': update['text'],
-        'incident_state': 6,
+        'incident_state': goal,
         'resolved_by': update['user']
     }
 

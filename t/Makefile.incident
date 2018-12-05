@@ -15,3 +15,7 @@ incident-create:
 incident-resolve:
 	@echo "incident-resolve"
 	echo "testing a resolve" |  ../usr/bin/snow-tkt-resolve $(INCIDENT) --debug
+
+incident-cancel:
+	@echo "incident-cancel"
+	echo "testing a cancel" |  ../usr/bin/snow-tkt-resolve $(INCIDENT) --debug --goal 8 --debug

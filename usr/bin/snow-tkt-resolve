@@ -28,6 +28,7 @@ def main():
         default=config_file)
     p.add_option ('--user', dest='user', action='store',
         default=getpass.getuser())
+    p.add_option ('--goal', dest='goal', action='store', default=None)
 
     global opt
     opt, args = p.parse_args()
@@ -54,7 +55,8 @@ def main():
         print "could not find ticket matching %s: %s" % (number, e)
 
     try:
-        tkt = pyfnalsnow.tktResolve(tkt_original, update, debug=opt.debug)
+        tkt = pyfnalsnow.tktResolve(tkt_original, update, debug=opt.debug,
+            goal=opt.goal)
         print u"\n".join(pyfnalsnow.tktStringResolution(tkt)).encode('utf-8').strip()
     except Exception, e:
         print "could not resolve ticket %s: %s" % (number, e)
@@ -91,6 +93,11 @@ snow-tkt-resolve closes a ticket (RITM or Incident) in Service Now (SNOW).
 
 Where should we load our SNOW config data?  Defaults to
 F</etc/snow/config.yaml>.
+
+=item --goal GOAL_STATE
+
+Set a goal state, if you have one.  Useful to (e.g.) cancel incidents
+instead of closing them normally.
 
 =back
 
