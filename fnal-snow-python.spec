@@ -1,6 +1,6 @@
 Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
-Version:        1.2.2
+Version:        1.2.3
 Release:        0%{?dist}
 Group:          Applications/System
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -9,9 +9,9 @@ BuildArch:      noarch
 
 Requires:       python python-iso8601 python-requests
 # also pysnow, no rpm available for that yet
-BuildRequires:  python rsync
-Vendor:         FNAL USCMS-T1
-License:        BSD
+BuildRequires:  python rsync python-setuptools
+Vendor:         ECF-SSI
+License:        Artistic 2.0
 URL:            http://www.fnal.gov/
 
 %description
@@ -25,15 +25,20 @@ Now interface via the JSON API.
 %build
 
 %install
-python setup.py install --prefix=${RPM_BUILD_ROOT}/usr
-
-rsync -Crlpt ./usr ${RPM_BUILD_ROOT}
+if [[ $RPM_BUILD_ROOT != "/" ]]; then
+    rm -rf $RPM_BUILD_ROOT
+fi
 
 mkdir -p ${RPM_BUILD_ROOT}/usr/share/man/man1
 for i in `ls usr/bin`; do
     pod2man --section 1 --center="System Commands" usr/bin/${i} \
         > ${RPM_BUILD_ROOT}/usr/share/man/man1/${i}.1 ;
 done
+
+rsync -Crlpt ./usr ${RPM_BUILD_ROOT}
+
+python setup.py install --prefix=${RPM_BUILD_ROOT}/usr \
+    --single-version-externally-managed --record=installed_files
 
 %clean
 # Adding empty clean section per rpmlint.  In this particular case, there is
@@ -47,6 +52,10 @@ done
 %{python_sitelib}/*egg-info
 
 %changelog
+* Wed Mar 20 2019   Tim Skirvin <tskirvin@fnal.gov> 1.2.3-0
+- moving the changelog to CHANGELOG.md going forwards
+- generally re-working for distribution via pypi
+
 * Wed Dec 05 2018   Tim Skirvin <tskirvin@fnal.gov> 1.2.2-0
 - snow-tkt-resolve - adds a 'goal' state so that we can cancel incidents 
   instead of just resolving them

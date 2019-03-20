@@ -1,7 +1,9 @@
 # pyfnalsnow
 
-This module provides Python libraries and scripts to interact with the FNAL
-instance of <http://www.service-now.com>.
+This module provides Python libraries and scripts to interact with 
+[Service Now](http://www.service-now.com).  This was designed to work with
+a specific instance of SNOW (FNAL), but these scripts and libraries will 
+probably work with other sites, so it's worth sharing.
 
 ## Scripts
 

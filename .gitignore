@@ -1,0 +1,6 @@
+.*.sw*
+*.tar.gz
+*egg-info
+dist/
+installed_files
+build/

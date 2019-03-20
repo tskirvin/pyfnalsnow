@@ -18,11 +18,13 @@
 ## Makefile itself, Makefile.local, the *.spec file, and anything listed in
 ## $(FILES_LOCAL).
 # FILES_LOCAL = usr etc
-FILES_LOCAL = pyfnalsnow usr setup.py *spec
+FILES_LOCAL = pyfnalsnow usr setup.py *spec README.md
 
 ## When creating the local
 # TAR_EXCLUDE = --exclude *.bak --exclude .git
 TAR_EXCLUDE = --exclude *.pyc --exclude *.pyo
+
+VERS := $(shell egrep ^Version *.spec | cut -d':' -f2 | tr -d ' ')
 
 ##############################################################################
 ### Targets ##################################################################
@@ -37,3 +39,22 @@ test:           rpm-7-nosign
 deploy:			deploy-6 deploy-7
 7:				rpm-7-nosign sign-slf7
 6:				rpm-6-nosign sign-slf6
+
+#############################################################################
+### PyPi ####################################################################
+#############################################################################
+
+pip-test:   pip-build pip-send-test
+pip-commit: pip-build pip-send-main
+
+pip-clean:
+	rm dist/*
+
+pip-build:
+	python3 setup.py sdist bdist_wheel
+
+pip-send-test:
+	python3 -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*-$(VERS)*
+
+pip-send-main:
+	python3 -m twine upload dist/*-$(VERS)*
