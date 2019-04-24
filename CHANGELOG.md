@@ -8,6 +8,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+* Incident.py - dropping all of the 'stage' search bits from tktFilter() because 
+  that field doesn't exist in SNOW (it's left over from Remedy-land)
+
 ## [1.2.3] - 2019-03-20
 
 ### Added

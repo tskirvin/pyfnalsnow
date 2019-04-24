@@ -48,9 +48,6 @@ def tktFilter(status='open', **args):
     extra = []
     if status.lower() == 'open':
         extra.append('incident_state<4')
-        extra.append('stage!=complete')
-        extra.append('stage!=Complete')
-        extra.append('stage!=Request Cancelled')
     elif status.lower() == 'closed':
         extra.append('incident_state>=4')
     elif status.lower() == 'unresolved':
