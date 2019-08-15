@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 #########################################################################
 ### Configuration #######################################################
@@ -58,13 +58,13 @@ def main():
     if 'assignment_group' in update:
         try:
             group = pyfnalsnow.groupByName(update['assignment_group'])
-        except Exception, e:
-            print "group %s does not exist in SNOW" % update['assignment_group']
+        except Exception as e:
+            print("group %s does not exist in SNOW" % update['assignment_group'])
             sys.exit(-1)
 
     tkt = pyfnalsnow.tktByNumber(number)
     if not tkt:
-        print "no matches for ticket '%s'" % number
+        print("no matches for ticket '%s'" % number)
         sys.exit(-1)
 
     user = ''
@@ -76,8 +76,8 @@ def main():
                 u = pyfnalsnow.userByUsername(update['assigned_to'])
                 user = u['user_name']
 
-        except Exception, e:
-            print "user %s does not exist in SNOW " % update['assigned_to']
+        except Exception as e:
+            print("user %s does not exist in SNOW " % update['assigned_to'])
             sys.exit(-1)
 
         if 'assignment_group' in update: g1 = update['assignment_group']
@@ -85,12 +85,12 @@ def main():
 
         if user != '':
             if not pyfnalsnow.userInGroup(user, g1):
-                print "user %s is not in group '%s'" % (update['assigned_to'], g1)
+                print("user %s is not in group '%s'" % (update['assigned_to'], g1))
                 sys.exit(-1)
 
     if tkt['assignment_group'] == '':
         if 'assignment_group' not in update:
-            print "ticket is not in a group, no --group passed in"
+            print("ticket is not in a group, no --group passed in")
             sys.exit(-1)
         else:
             g = tkt['assignment_group']
@@ -98,13 +98,13 @@ def main():
     if opt.debug:
         u = update['assigned_to']
         g = update['assignment_group']
-        print "Assigning tkt %s to %s/%s" % (number, g, u)
+        print("Assigning tkt %s to %s/%s" % (number, g, u))
 
     try:
         tkt = pyfnalsnow.tktUpdate(number, update)
-        print u"\n".join(pyfnalsnow.tktString(tkt, 'base')).encode('utf-8').strip()
-    except Exception, e:
-        print e
+        print("\n".join(pyfnalsnow.tktString(tkt, 'base')).encode('utf-8').strip())
+    except Exception as e:
+        print(e)
 
     sys.exit(0)
 

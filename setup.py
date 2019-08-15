@@ -26,7 +26,7 @@ setup (
   data_files = [ ( 'share/man/man1', man ) ],
   description = 'SNOW JSON API access',
   license = 'Perl Artistic',
-  install_requires = ['pysnow>=0.7.4'],
+  install_requires = ['pysnow>=0.7.4', 'PyYAML>=3.11'],
   keywords = ['snow', 'service-now'],
   long_description_content_type = 'text/markdown',
   long_description = long_description,

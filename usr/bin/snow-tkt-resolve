@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 #########################################################################
 ### Configuration #######################################################
@@ -51,15 +51,15 @@ def main():
 
     try:
         tkt_original = pyfnalsnow.tktByNumber(number)
-    except Exception, e:
-        print "could not find ticket matching %s: %s" % (number, e)
+    except Exception as e:
+        print("could not find ticket matching %s: %s" % (number, e))
 
     try:
         tkt = pyfnalsnow.tktResolve(tkt_original, update, debug=opt.debug,
             goal=opt.goal)
-        print u"\n".join(pyfnalsnow.tktStringResolution(tkt)).encode('utf-8').strip()
-    except Exception, e:
-        print "could not resolve ticket %s: %s" % (number, e)
+        print("\n".join(pyfnalsnow.tktStringResolution(tkt)).encode('utf-8').strip())
+    except Exception as e:
+        print("could not resolve ticket %s: %s" % (number, e))
 
 
     sys.exit(0)

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 #########################################################################
 ### Configuration #######################################################
@@ -42,10 +42,10 @@ def main():
     try:
         snow = pyfnalsnow.connect()
         tkt = pyfnalsnow.tktByNumber(number)
-        print u"\n".join(pyfnalsnow.tktString(tkt, \
-            type=opt.string_type)).encode('utf-8').strip()
-    except Exception, e:
-        print e
+        print("\n".join(pyfnalsnow.tktString(tkt, \
+            type=opt.string_type)).encode('utf-8').strip())
+    except Exception as e:
+        print(e)
         sys.exit(-1)
 
     sys.exit(0)

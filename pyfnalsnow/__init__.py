@@ -63,11 +63,11 @@ def pyfnalsnow_config(file=config_file):
 
     try:
         config = yaml.load(open(file, 'r'))
-    except IOError, e:
-        print "file error:  %s" % e
+    except IOError as e:
+        print("file error:  %s" % e)
         sys.exit (2)
-    except Exception, e:
-        print "unknown error:  %s" % e
+    except Exception as e:
+        print("unknown error:  %s" % e)
         sys.exit (2)
 
     return config
@@ -123,7 +123,7 @@ def cacheQueryOne(table, query):
             elif len(entries) > 1:
                 raise Exception('too many entries (%s) (%s vs %s)' % (len(entries), query, table))
             result = entries[0]
-        except Exception, e:
+        except Exception as e:
             result = { 'value': '(no match)' }
         cache[table][q] = result
     return cache[table][q]
@@ -223,7 +223,7 @@ def groupLink(group):
     """
     if isinstance(group, dict):
         if 'value' in group:
-            if group['value'] == u'0': return '*none*'
+            if group['value'] == '0': return '*none*'
             g = groupById(group['value'])
             return g['name']
     return group
@@ -304,7 +304,7 @@ def tktJournalEntries(tkt):
             key = i['sys_created_on']
             journals[key] = i
 
-    for i in sorted(journals.iterkeys()):
+    for i in sorted(journals.keys()):
         ret.append(journals[i])
     return ret
 
@@ -317,7 +317,7 @@ def tktSearch(table, **args):
     try:
         search = tableSwitch(table, 'tktFilter', **args)
         r = snow.resource(api_path='/table/%s' % table).get(query=search, stream=True)
-    except Exception, e:
+    except Exception as e:
         raise e
 
     ret = []
@@ -403,7 +403,7 @@ def userLinkName(user):
     """
     if isinstance(user, dict):
         if 'value' in user:
-            if user['value'] == u'0': return '*nobody*'
+            if user['value'] == '0': return '*nobody*'
             u = pyfnalsnow.userById(user['value'])
             return u['name']
     return user
@@ -415,7 +415,7 @@ def userLinkUsername(user):
     """
     if isinstance(user, dict):
         if 'value' in user:
-            if user['value'] == u'0': return '*nobody*'
+            if user['value'] == '0': return '*nobody*'
             u = pyfnalsnow.userById(user['value'])
             return u['user_name']
     return user

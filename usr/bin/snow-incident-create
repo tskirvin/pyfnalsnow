@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 #########################################################################
 ### Configuration #######################################################
@@ -27,15 +27,15 @@ def submitRequest(request):
     auth = (config['servicenow']['username'], config['servicenow']['password'])
     headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
 
-    if opt.debug: print json.dumps(request, sort_keys=True, indent=4)
+    if opt.debug: print(json.dumps(request, sort_keys=True, indent=4))
 
     response = requests.post(url, auth=auth, headers=headers, json=request)
     try:
         j = response.json()
         incident = j['result']['number']
         return incident
-    except Exception, e:
-        print "error: could not create request - %s" % e
+    except Exception as e:
+        print("error: could not create request - %s" % e)
         sys.exit(-1)
 
 
@@ -72,8 +72,8 @@ def main():
             except yaml.YAMLError as exc:
                 print(exc)
                 sys.exit(-1)
-    except Exception,e :
-        print "could not open %s: %s" % (opt.ticket, e)
+    except Exception as e:
+        print ("could not open %s: %s" % (opt.ticket, e))
         sys.exit(-1)
 
     subject = ' '.join(args).rstrip()
@@ -88,14 +88,14 @@ def main():
 
     u = pyfnalsnow.userByUsername(opt.user)
     if not u:
-        print "no matching SNOW user: %s" % opt.user
+        print ("no matching SNOW user: %s" % opt.user)
         sys.exit(-1)
     ticket['caller_id'] = u['user_name']
 
     number = submitRequest(ticket)
     tkt = pyfnalsnow.tktByNumber(number)
-    print u"\n".join(pyfnalsnow.tktString(tkt, \
-        type='short')).encode('utf-8').strip()
+    print (u"\n".join(pyfnalsnow.tktString(tkt, \
+        type='short')).encode('utf-8').strip())
 
     sys.exit(0)
 

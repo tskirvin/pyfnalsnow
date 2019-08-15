@@ -108,10 +108,10 @@ def tktPending(tkt, **kwargs):
     new = {}
 
     state = tkt['state']
-    if debug: print "initial state: %s  goal state: %s" % (state, goal)
+    if debug: print("initial state: %s  goal state: %s" % (state, goal))
 
     if int(state) == int(goal): 
-       if debug: print "nothing to do (already in goal state)"
+       if debug: print("nothing to do (already in goal state)")
        return tkt
 
     if   int(state) == -5: raise Exception('at goal state')
@@ -123,10 +123,10 @@ def tktPending(tkt, **kwargs):
     elif int(state) == 24: raise Exception('cannot change state from 24')
     else:                  raise Exception('invalid start state: %s' % state)
 
-    if debug: print "updating goal state to %s" % new['state']
+    if debug: print("updating goal state to %s" % new['state'])
 
     if new['state'] == int(goal): 
-       if debug: print "going to goal state, will also set u_pending_reason"
+       if debug: print("going to goal state, will also set u_pending_reason")
        new['u_pending_reason'] = reason
 
     updated = pyfnalsnow.tktUpdate(tkt['number'], new)
@@ -178,10 +178,10 @@ def tktResolve(tkt, update, **kwargs):
 
     state = tkt['state']
 
-    if debug: print "initial state: %s  goal state: %s" % (state, goal)
+    if debug: print("initial state: %s  goal state: %s" % (state, goal))
 
     if int(state) == int(goal): 
-       if debug: print "nothing to do (already in goal state)"
+       if debug: print("nothing to do (already in goal state)")
        return tkt
 
     if int(state) == -5:
@@ -207,10 +207,10 @@ def tktResolve(tkt, update, **kwargs):
         raise Exception('invalid start state: %s' % state)
 
     if debug:
-        print "updating goal state to %s" % new['state']
+        print("updating goal state to %s" % new['state'])
 
     if new['state'] == int(goal): 
-       if debug: print "going to goal state, will also set close_notes"
+       if debug: print("going to goal state, will also set close_notes")
        new['close_notes'] = text
 
     updated = pyfnalsnow.tktUpdate(tkt['number'], new)

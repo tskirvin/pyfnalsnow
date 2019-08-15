@@ -1,15 +1,15 @@
 Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
-Version:        1.2.3
+Version:        1.3.0
 Release:        0%{?dist}
 Group:          Applications/System
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Source0:        %{name}-%{version}-%{release}.tar.gz
 BuildArch:      noarch
 
-Requires:       python python-iso8601 python-requests
+Requires:       python36 python36-iso8601 python36-requests python36-PyYAML
 # also pysnow, no rpm available for that yet
-BuildRequires:  python rsync python-setuptools
+BuildRequires:  python36 python36-setuptools python3-rpm-macros rsync
 Vendor:         ECF-SSI
 License:        Artistic 2.0
 URL:            http://www.fnal.gov/
@@ -37,7 +37,7 @@ done
 
 rsync -Crlpt ./usr ${RPM_BUILD_ROOT}
 
-python setup.py install --prefix=${RPM_BUILD_ROOT}/usr \
+python3 setup.py install --prefix=${RPM_BUILD_ROOT}/usr \
     --single-version-externally-managed --record=installed_files
 
 %clean
@@ -48,10 +48,13 @@ python setup.py install --prefix=${RPM_BUILD_ROOT}/usr \
 %defattr(-,root,root)
 /usr/bin/*
 /usr/share/man/man1/*
-%{python_sitelib}/pyfnalsnow/*py*
-%{python_sitelib}/*egg-info
+%{python3_sitelib}/pyfnalsnow/*py*
+%{python3_sitelib}/*egg-info
 
 %changelog
+* Thu Aug 15 2019   Tim Skirvin <tskirvin@fnal.gov> 1.3.0-0
+- now python 3
+
 * Wed Mar 20 2019   Tim Skirvin <tskirvin@fnal.gov> 1.2.3-0
 - moving the changelog to CHANGELOG.md going forwards
 - generally re-working for distribution via pypi

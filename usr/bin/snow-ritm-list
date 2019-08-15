@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 #########################################################################
 ### Configuration #######################################################
@@ -55,7 +55,7 @@ def main():
 
     ret = []
 
-    if opt.debug: print "querying %s/%s" % (opt.query, opt.subquery)
+    if opt.debug: print("querying %s/%s" % (opt.query, opt.subquery))
 
     if opt.query == 'group':
         for g in findGroups():
@@ -87,10 +87,10 @@ def main():
         ret.append('')
 
     else:
-        print "unknown query type: %s" % opt.query
+        print("unknown query type: %s" % opt.query)
         sys.exit(-1)
 
-    print '\n'.join(ret)
+    print('\n'.join(ret))
     sys.exit(0)
 
 if __name__ == '__main__':
