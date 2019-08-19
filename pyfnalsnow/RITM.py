@@ -45,15 +45,16 @@ def tktFilter(status='open', **args):
     """
 
     extra = []
-    if status.lower() == 'open':
-        extra.append('state>3')
+    if status.lower() == 'open':            # not pending, closed, cancelled, complete
+        extra.append('state!=-5')
+        extra.append('state!=3')
         extra.append('state!=24')
         extra.append('state!=11')
     elif status.lower() == 'closed':
         extra.append('state==3')
-    elif status.lower() == 'unresolved':
-        extra.append('state>3')
-        extra.append('state<24')
+    elif status.lower() == 'unresolved':    # not closed, cancelled, complete
+        extra.append('state!=3')
+        extra.append('state!=24')
         extra.append('state!=11')
 
     if 'unassigned' in args:

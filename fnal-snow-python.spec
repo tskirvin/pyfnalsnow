@@ -1,6 +1,6 @@
 Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
-Version:        1.3.0
+Version:        1.3.1
 Release:        0%{?dist}
 Group:          Applications/System
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -52,6 +52,9 @@ python3 setup.py install --prefix=${RPM_BUILD_ROOT}/usr \
 %{python3_sitelib}/*egg-info
 
 %changelog
+* Mon Aug 19 2019   Tim Skirvin <tskirvin@fnal.gov> 1.3.1-0
+- RITM.py - tktPending() 'unresolved' search now includes pending
+
 * Mon Aug 19 2019   Tim Skirvin <tskirvin@fnal.gov> 1.3.0-0
 - python 3
 - ran through the flake8 python linter, cleaned up to match
@@ -61,7 +64,7 @@ python3 setup.py install --prefix=${RPM_BUILD_ROOT}/usr \
 - generally re-working for distribution via pypi
 
 * Wed Dec 05 2018   Tim Skirvin <tskirvin@fnal.gov> 1.2.2-0
-- snow-tkt-resolve - adds a 'goal' state so that we can cancel incidents 
+- snow-tkt-resolve - adds a 'goal' state so that we can cancel incidents
   instead of just resolving them
 - Incident.py - changes to match
 
