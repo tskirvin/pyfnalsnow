@@ -22,13 +22,13 @@ usage = "%prog [options] NUMBER"
 
 def main():
     global p
-    p = optparse.OptionParser (usage = usage, description = description)
-    p.add_option ('--debug', dest='debug', action='store_true', default=False)
-    p.add_option ('--config', dest='config', action='store',
+    p = optparse.OptionParser(usage=usage, description=description)
+    p.add_option('--debug', dest='debug', action='store_true', default=False)
+    p.add_option('--config', dest='config', action='store',
         default=config_file)
-    p.add_option ('--user', dest='user', action='store',
+    p.add_option('--user', dest='user', action='store',
         default=getpass.getuser())
-    p.add_option ('--goal', dest='goal', action='store', default=None)
+    p.add_option('--goal', dest='goal', action='store', default=None)
 
     global opt
     opt, args = p.parse_args()
@@ -43,11 +43,11 @@ def main():
         'text': text,
         'user': opt.user,
     }
-    
+
     ## connect to SNOW
     number = pyfnalsnow.tktNumberParse(args[0])
-    config = pyfnalsnow.pyfnalsnow_config(opt.config)
-    snow = pyfnalsnow.connect()
+    pyfnalsnow.pyfnalsnow_config(opt.config)
+    pyfnalsnow.connect()
 
     try:
         tkt_original = pyfnalsnow.tktByNumber(number)
@@ -57,10 +57,9 @@ def main():
     try:
         tkt = pyfnalsnow.tktResolve(tkt_original, update, debug=opt.debug,
             goal=opt.goal)
-        print("\n".join(pyfnalsnow.tktStringResolution(tkt)).encode('utf-8').strip())
+        print("\n".join(pyfnalsnow.tktStringResolution(tkt)).strip())
     except Exception as e:
         print("could not resolve ticket %s: %s" % (number, e))
-
 
     sys.exit(0)
 
@@ -79,7 +78,7 @@ snow-tkt-resolve - resolve a SNOW ticket
 
 =head1 SYNOPSIS
 
-echo TEXT | snow-tkt-resolve RITM456995 
+echo TEXT | snow-tkt-resolve RITM456995
 
 =head1 USAGE
 

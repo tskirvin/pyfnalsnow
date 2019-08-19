@@ -11,7 +11,7 @@ config_file = '/etc/snow/config.yaml'
 #########################################################################
 
 import pyfnalsnow
-import getpass, optparse, pprint, sys
+import getpass, optparse, sys
 
 description = "add a worklog entry to an object in SNOW"
 usage = "%prog [options] NUMBER"
@@ -22,13 +22,13 @@ usage = "%prog [options] NUMBER"
 
 def main():
     global p
-    p = optparse.OptionParser (usage = usage, description = description)
-    p.add_option ('--debug', dest='debug', action='store_true', default=False)
-    p.add_option ('--config', dest='config', action='store',
+    p = optparse.OptionParser(usage=usage, description=description)
+    p.add_option('--debug', dest='debug', action='store_true', default=False)
+    p.add_option('--config', dest='config', action='store',
         default=config_file)
-    p.add_option ('--type', dest='field', action='store',
+    p.add_option('--type', dest='field', action='store',
         default='work_notes', choices=['comment', 'work_notes'])
-    p.add_option ('--user', dest='user', action='store',
+    p.add_option('--user', dest='user', action='store',
         default=getpass.getuser())
 
     global opt
@@ -41,17 +41,17 @@ def main():
     text = '\n'.join(sys.stdin.readlines()).rstrip()
 
     number = pyfnalsnow.tktNumberParse(args[0])
-    config = pyfnalsnow.pyfnalsnow_config(opt.config)
-    snow = pyfnalsnow.connect()
+    pyfnalsnow.pyfnalsnow_config(opt.config)
+    pyfnalsnow.connect()
 
     if not pyfnalsnow.tktByNumber(number):
         print("no matches for ticket '%s'" % number)
         sys.exit(-1)
 
-    update = { opt.field: "%s: %s" % (opt.user, text) }
+    update = {opt.field: "%s: %s" % (opt.user, text)}
     tkt = pyfnalsnow.tktUpdate(number, update)
 
-    print("\n".join(pyfnalsnow.tktString(tkt, 'base')).encode('utf-8').strip())
+    print("\n".join(pyfnalsnow.tktString(tkt, 'base')).strip())
 
     sys.exit(0)
 

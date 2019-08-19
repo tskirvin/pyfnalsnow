@@ -11,7 +11,7 @@ config_file = '/etc/snow/config.yaml'
 #########################################################################
 
 import pyfnalsnow
-import getpass, optparse, pprint, sys
+import getpass, optparse, sys
 
 description = "query for incident objects in SNOW"
 usage = "%prog [options] subject"
@@ -20,29 +20,31 @@ usage = "%prog [options] subject"
 ### Subroutines #########################################################
 #########################################################################
 
+
 def findGroups():
     if opt.group == 'all': groups = pyfnalsnow.userInGroups(opt.user)
-    else:                  groups = [ opt.group ]
+    else:                  groups = [opt.group]
     return groups
 
 #########################################################################
 ### main () #############################################################
 #########################################################################
 
+
 def main():
     global p
-    p = optparse.OptionParser (usage = usage, description = description)
-    p.add_option ('--debug', dest='debug', action='store_true', default=False)
-    p.add_option ('--config', dest='config', action='store',
+    p = optparse.OptionParser(usage=usage, description=description)
+    p.add_option('--debug', dest='debug', action='store_true', default=False)
+    p.add_option('--config', dest='config', action='store',
         default=config_file)
-    p.add_option ('--group', dest='group', action='store', default='all')
-    p.add_option ('--user', dest='user', action='store', 
+    p.add_option('--group', dest='group', action='store', default='all')
+    p.add_option('--user', dest='user', action='store',
         default=getpass.getuser())
-    p.add_option ('--query', dest='query', action='store', default='group',
+    p.add_option('--query', dest='query', action='store', default='group',
         choices=['assign', 'group', 'submit', 'ci'])
-    p.add_option ('--subquery', dest='subquery', action='store', default='open',
+    p.add_option('--subquery', dest='subquery', action='store', default='open',
         choices=['closed', 'open', 'unresolved'])
-    p.add_option ('--caller', dest='caller', action='store', default=None)
+    p.add_option('--caller', dest='caller', action='store', default=None)
 
     global opt
     opt, args = p.parse_args()
@@ -51,8 +53,8 @@ def main():
         p.print_help()
         sys.exit(-1)
 
-    config = pyfnalsnow.pyfnalsnow_config(opt.config)
-    snow = pyfnalsnow.connect()
+    config = pyfnalsnow.pyfnalsnow_config(opt.config)   # noqa: F841
+    snow = pyfnalsnow.connect()                         # noqa: F841
 
     ret = []
 
@@ -62,15 +64,16 @@ def main():
         for g in findGroups():
             ret.append("== Unresolved Incidents assigned to group '%s' ==" % g)
 
-            for t in pyfnalsnow.tktSearch('incident', group=g, \
-                status=opt.subquery, caller=opt.caller):
+            for t in pyfnalsnow.tktSearch('incident', group=g,
+              status=opt.subquery, caller=opt.caller):
                 summary = pyfnalsnow.tktStringSummary(t)
                 ret.append('')
                 ret.extend(summary)
             ret.append('')
 
     elif opt.query == 'assign':
-        ret.append("== Unresolved Incidents assigned to user '%s' ==" % opt.user)
+        ret.append("== Unresolved Incidents assigned to user '%s' =="
+            % opt.user)
         for t in pyfnalsnow.tktSearch('incident', assigned=opt.user,
                 status=opt.subquery, caller=opt.caller):
             summary = pyfnalsnow.tktStringSummary(t)
@@ -79,14 +82,14 @@ def main():
         ret.append('')
 
     elif opt.query == 'submit':
-        ret.append("== Unresolved Incidents submitted by user '%s' ==" % opt.user)
+        ret.append("== Unresolved Incidents submitted by user '%s' =="
+            % opt.user)
         for t in pyfnalsnow.tktSearch('incident', submit=opt.user,
                 status=opt.subquery, caller=opt.caller):
             summary = pyfnalsnow.tktStringSummary(t)
             ret.append('')
             ret.extend(summary)
         ret.append('')
-
 
     else:
         print("unknown query type: %s" % opt.query)
@@ -122,8 +125,8 @@ B<snow-incident-list> --query submit --user tskirvin
 
 =head1 USAGE
 
-snow-incident-list queries Service Now (SNOW) to pull down data about a specific
-incident object (Incident), and prints the output to STDOUT.  
+snow-incident-list queries Service Now (SNOW) to pull down data about a
+specific incident object (Incident), and prints the output to STDOUT.
 
 =head1 OPTIONS
 

@@ -9,18 +9,18 @@ pyfnalsnow.Incident - parse Incident objects.  These are pretty much the
 
 import pyfnalsnow
 
-from pyfnalsnow.ticket import tktStringAssignee
-from pyfnalsnow.ticket import tktStringAudit
-from pyfnalsnow.ticket import tktStringBase
-from pyfnalsnow.ticket import tktStringBaseAudit
-from pyfnalsnow.ticket import tktStringDebug
-from pyfnalsnow.ticket import tktStringDescription
-from pyfnalsnow.ticket import tktStringJournal
-from pyfnalsnow.ticket import tktStringPrimary
-from pyfnalsnow.ticket import tktStringRequestor
-# from pyfnalsnow.ticket import tktStringResolution
-from pyfnalsnow.ticket import tktStringShort
-from pyfnalsnow.ticket import tktStringSummary
+from pyfnalsnow.ticket import tktStringAssignee     # noqa:F401
+from pyfnalsnow.ticket import tktStringAudit        # noqa:F401
+from pyfnalsnow.ticket import tktStringBase         # noqa:F401
+from pyfnalsnow.ticket import tktStringBaseAudit    # noqa:F401
+from pyfnalsnow.ticket import tktStringDebug        # noqa:F401
+from pyfnalsnow.ticket import tktStringDescription  # noqa:F401
+from pyfnalsnow.ticket import tktStringJournal      # noqa:F401
+from pyfnalsnow.ticket import tktStringPrimary      # noqa:F401
+from pyfnalsnow.ticket import tktStringRequestor    # noqa:F401
+# from pyfnalsnow.ticket import tktStringResolution # noqa:F401
+from pyfnalsnow.ticket import tktStringShort        # noqa:F401
+from pyfnalsnow.ticket import tktStringSummary      # noqa:F401
 
 #########################################################################
 ### Configuration #######################################################
@@ -74,13 +74,13 @@ def tktFilter(status='open', **args):
             extra.append('caller_id=%s' % user['sys_id'])
         except: pass
 
-    search='^'.join(extra)
+    search = '^'.join(extra)
 
     return search
 
 def tktIsResolved(tkt):
     if int(tkt['incident_state']) >= 4: return True
-    else:                               return False
+    else: return False
 
 def tktPending(tkt, **kwargs):
     """
@@ -94,7 +94,7 @@ def tktPending(tkt, **kwargs):
     try:    reason = kwargs['reason']
     except: reason = 'Customer'
 
-    new = { 'u_pending_reason': reason }
+    new = {'u_pending_reason': reason}
     return pyfnalsnow.tktUpdate(tkt['number'], new)
 
 def tktStringResolution(tkt):

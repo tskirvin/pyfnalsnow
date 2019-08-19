@@ -8,7 +8,7 @@ be called directly, but will be the basis of (e.g.) pyfnalsnow.RITM.
 ### Declarations ########################################################
 #########################################################################
 
-import iso8601, pprint
+import iso8601
 import pyfnalsnow
 import textwrap
 
@@ -68,13 +68,13 @@ def formatTextField(field, value, **kwargs):
     if value: v = value
     else:     v = '*unknown*'
 
-    w = "%s %%s" % ( '%%-%ss' % minWidth )
+    w = "%s %%s" % ('%%-%ss' % minWidth)
 
-    text = textwrap.wrap (
+    text = textwrap.wrap(
         w % ("%s:" % field, v),
-        initial_indent = prefix,
-        subsequent_indent = ' ' * (len(prefix) + minWidth + 1),
-        width = width
+        initial_indent=prefix,
+        subsequent_indent=' ' * (len(prefix) + minWidth + 1),
+        width=width
     )
     return text
 
@@ -159,9 +159,8 @@ def tktStringAudit(tkt):
             if i['update'] != '0':
                 count = count + 1
                 field = i['field']
-                old   = i['old']
-                new   = i['new']
-                label = i['label']
+                old = i['old']
+                new = i['new']
                 ret.append('Audit Entry %s' % count)
                 ret.extend(formatTextField('Date', i['update_time']))
                 ret.extend(formatTextField('Updated By', i['user_id']))
@@ -180,12 +179,12 @@ def tktStringDebug(tkt):
     """
     ret = []
     ret.append('== %s (%s) ==' % (tkt['number'], tkt['sys_id']))
-    width=0
+    width = 0
     for key in tkt:
         if len(key) > width: width = len(key)
 
     for key in sorted(tkt):
-        ret.extend(formatTextField(key, tkt[key], \
+        ret.extend(formatTextField(key, tkt[key],
             minWidth=width + 1, prefix=''))
 
     return ret
@@ -207,8 +206,7 @@ def tktStringJournal(tkt):
     the journals using tktJournalEntries.
     """
 
-    depth1 = { 'prefix': '    ' }
-    depth2 = { 'prefix': '    ' }
+    depth1 = {'prefix': '    '}
     ret = []
     journals = pyfnalsnow.tktJournalEntries(tkt)
     if len(journals) < 1: return ret
@@ -327,24 +325,23 @@ def tktStringSummary(tkt):
     if requestor: request = requestor
     else:         request = '*unknown*'
 
-    group  = tktAssignedGroup(tkt)
+    group = tktAssignedGroup(tkt)
     status = tktStatus(tkt)
 
-    ret.append ( "%-15.15s %-14.14s %-14.14s %-16.16s %17.17s" %
-        (number, request, assign, group, status) );
+    ret.append("%-15.15s %-14.14s %-14.14s %-16.16s %17.17s" %
+        (number, request, assign, group, status))
 
     created = formatDate(tktDateSubmit(tkt))
     updated = formatDate(tktDateUpdate(tkt))
-    ci = _FieldOrEmpty(tkt, 'cmdb_ci')
     if 'cmdb_ci' in tkt:
-      ci_text = tktCiName(tkt)
+        ci_text = tktCiName(tkt)
     else: ci_text = 'no CI'
 
-    ret.append ( " Created: %-19.19s  Updated: %-19.19s  CI: %-15.15s" %
-        (created, updated, ci_text) )
+    ret.append(" Created: %-19.19s  Updated: %-19.19s  CI: %-15.15s" %
+        (created, updated, ci_text))
 
     description = tktSummary(tkt)
-    ret.append ( ' Subject: %-70.70s' % description)
+    ret.append(' Subject: %-70.70s' % description)
 
     return ret
 
@@ -363,8 +360,8 @@ def _FieldOrEmpty(tkt, *field):
     return None
 
 def tktAssignedPerson(tkt): return pyfnalsnow.userLinkName(tkt['assigned_to'])
-def tktAssignedGroup(tkt):  return pyfnalsnow.groupLink(tkt['assignment_group'])
-def tktCallingPerson(tkt):  return tkt['caller_id']
+def tktAssignedGroup(tkt): return pyfnalsnow.groupLink(tkt['assignment_group'])
+def tktCallingPerson(tkt): return tkt['caller_id']
 def tktCiName(tkt):
     try:
         ci_entry = tkt['cmdb_ci']
@@ -372,24 +369,24 @@ def tktCiName(tkt):
     except: return None
 
     if 'name' in ci: return ci['name']
-    else:            return 'unknown'
+    else: return 'unknown'
 
-def tktCreatedOn(tkt):      return _FieldOrEmpty(tkt, 'sys_created_on')
-def tktDateResolved(tkt):   return tkt['resolved_at']
-def tktDateSubmit(tkt):     return _FieldOrEmpty(tkt, 'opened_at')
-def tktDateUpdate(tkt):     return tkt['sys_updated_on']
-def tktNumber(tkt):         return tkt['number']
-def tktPriority(tkt):       return tkt['priority']
-def tktRequestPerson(tkt):  return tkt['sys_created_by']
-def tktResolvedBy(tkt):     return pyfnalsnow.userLinkName(tkt['resolved_by'])
-def tktResolvedCode(tkt):   return tkt['close_code']
-def tktServiceType(tkt):    return tkt['u_service_type']
+def tktCreatedOn(tkt): return _FieldOrEmpty(tkt, 'sys_created_on')
+def tktDateResolved(tkt): return tkt['resolved_at']
+def tktDateSubmit(tkt): return _FieldOrEmpty(tkt, 'opened_at')
+def tktDateUpdate(tkt): return tkt['sys_updated_on']
+def tktNumber(tkt): return tkt['number']
+def tktPriority(tkt): return tkt['priority']
+def tktRequestPerson(tkt): return tkt['sys_created_by']
+def tktResolvedBy(tkt): return pyfnalsnow.userLinkName(tkt['resolved_by'])
+def tktResolvedCode(tkt): return tkt['close_code']
+def tktServiceType(tkt): return tkt['u_service_type']
 
 def tktStatus(tkt):
     for i in ['dv_incident_state', 'u_itil_state']:
         if i in tkt: return tkt[i]
     return ''
 
-def tktState(tkt):          return tkt['state']
-def tktSummary(tkt):        return tkt['short_description']
-def tktUrgency(tkt):        return tkt['urgency']
+def tktState(tkt): return tkt['state']
+def tktSummary(tkt): return tkt['short_description']
+def tktUrgency(tkt): return tkt['urgency']

@@ -11,7 +11,7 @@ config_file = '/etc/snow/config.yaml'
 #########################################################################
 
 import pyfnalsnow
-import getpass, optparse, sys
+import optparse, sys
 
 description = "set a SNOW ticket to status pending"
 usage = "%prog [options] NUMBER"
@@ -22,11 +22,11 @@ usage = "%prog [options] NUMBER"
 
 def main():
     global p
-    p = optparse.OptionParser (usage = usage, description = description)
-    p.add_option ('--debug', dest='debug', action='store_true', default=False)
-    p.add_option ('--config', dest='config', action='store',
+    p = optparse.OptionParser(usage=usage, description=description)
+    p.add_option('--debug', dest='debug', action='store_true', default=False)
+    p.add_option('--config', dest='config', action='store',
         default=config_file)
-    p.add_option ('--reason', dest='reason', action='store', default='Customer')
+    p.add_option('--reason', dest='reason', action='store', default='Customer')
 
     global opt
     opt, args = p.parse_args()
@@ -35,12 +35,10 @@ def main():
         p.print_help()
         sys.exit(-1)
 
-    update = { 'reason': opt.reason }
-
     ## connect to SNOW
     number = pyfnalsnow.tktNumberParse(args[0])
-    config = pyfnalsnow.pyfnalsnow_config(opt.config)
-    snow = pyfnalsnow.connect()
+    pyfnalsnow.pyfnalsnow_config(opt.config)
+    pyfnalsnow.connect()
 
     try:
         tkt_original = pyfnalsnow.tktByNumber(number)
@@ -49,7 +47,7 @@ def main():
 
     try:
         tkt = pyfnalsnow.tktPending(tkt_original, reason=opt.reason, debug=opt.debug)
-        print("\n".join(pyfnalsnow.tktStringShort(tkt)).encode('utf-8').strip())
+        print("\n".join(pyfnalsnow.tktStringShort(tkt)).strip())
     except Exception as e:
         print("could not resolve ticket %s: %s" % (number, e))
 

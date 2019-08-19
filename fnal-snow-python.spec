@@ -52,8 +52,9 @@ python3 setup.py install --prefix=${RPM_BUILD_ROOT}/usr \
 %{python3_sitelib}/*egg-info
 
 %changelog
-* Thu Aug 15 2019   Tim Skirvin <tskirvin@fnal.gov> 1.3.0-0
-- now python 3
+* Mon Aug 19 2019   Tim Skirvin <tskirvin@fnal.gov> 1.3.0-0
+- python 3
+- ran through the flake8 python linter, cleaned up to match
 
 * Wed Mar 20 2019   Tim Skirvin <tskirvin@fnal.gov> 1.2.3-0
 - moving the changelog to CHANGELOG.md going forwards

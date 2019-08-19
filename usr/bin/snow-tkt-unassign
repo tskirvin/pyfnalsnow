@@ -12,7 +12,7 @@ group = 'Service Desk'
 #########################################################################
 
 import pyfnalsnow
-import getpass, optparse, sys
+import optparse, sys
 
 description = "assign a SNOW ticket to '%s'" % group
 usage = "%prog [options] NUMBER"
@@ -23,9 +23,9 @@ usage = "%prog [options] NUMBER"
 
 def main():
     global p
-    p = optparse.OptionParser (usage = usage, description = description)
-    p.add_option ('--debug', dest='debug', action='store_true', default=False)
-    p.add_option ('--config', dest='config', action='store',
+    p = optparse.OptionParser(usage=usage, description=description)
+    p.add_option('--debug', dest='debug', action='store_true', default=False)
+    p.add_option('--config', dest='config', action='store',
         default=config_file)
 
     global opt
@@ -35,20 +35,20 @@ def main():
         p.print_help()
         sys.exit(-1)
 
-    update = { 
+    update = {
         'assignment_group': group,
-        'assigned_to': 0, 
+        'assigned_to': 0,
         'u_request_reassignment': 1
     }
-    
+
     ## connect to SNOW
     number = pyfnalsnow.tktNumberParse(args[0])
-    config = pyfnalsnow.pyfnalsnow_config(opt.config)
-    snow = pyfnalsnow.connect()
+    pyfnalsnow.pyfnalsnow_config(opt.config)
+    pyfnalsnow.connect()
 
     tkt = pyfnalsnow.tktUpdate(number, update)
 
-    print("\n".join(pyfnalsnow.tktString(tkt, 'base')).encode('utf-8').strip())
+    print("\n".join(pyfnalsnow.tktString(tkt, 'base')).strip())
 
     sys.exit(0)
 
@@ -71,8 +71,8 @@ snow-tkt-unassign RITM456995
 
 =head1 USAGE
 
-snow-tkt-unassign assigns a given ticket in Service Now (SNOW) back to    
-the help desk, and prints the resulting output to STDOUT.                 
+snow-tkt-unassign assigns a given ticket in Service Now (SNOW) back to
+the help desk, and prints the resulting output to STDOUT.
 
 =head1 OPTIONS
 

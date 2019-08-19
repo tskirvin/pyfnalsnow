@@ -11,7 +11,7 @@ config_file = '/etc/snow/config.yaml'
 #########################################################################
 
 import pyfnalsnow
-import optparse, pprint, sys
+import optparse, sys
 
 description = "read a tkt object from SNOW"
 usage = "%prog [options] NUMBER"
@@ -22,11 +22,11 @@ usage = "%prog [options] NUMBER"
 
 def main():
     global p
-    p = optparse.OptionParser (usage = usage, description = description)
-    p.add_option ('--debug', dest='debug', action='store_true', default=False)
-    p.add_option ('--config', dest='config', action='store',
+    p = optparse.OptionParser(usage=usage, description=description)
+    p.add_option('--debug', dest='debug', action='store_true', default=False)
+    p.add_option('--config', dest='config', action='store',
         default=config_file)
-    p.add_option ('--type', dest='string_type', action='store', default='base',
+    p.add_option('--type', dest='string_type', action='store', default='base',
         choices=['base', 'debug', 'worklog', 'audit'])
 
     global opt
@@ -38,12 +38,11 @@ def main():
 
     number = pyfnalsnow.tktNumberParse(args[0])
 
-    config = pyfnalsnow.pyfnalsnow_config(opt.config)
+    pyfnalsnow.pyfnalsnow_config(opt.config)
     try:
-        snow = pyfnalsnow.connect()
+        pyfnalsnow.connect()
         tkt = pyfnalsnow.tktByNumber(number)
-        print("\n".join(pyfnalsnow.tktString(tkt, \
-            type=opt.string_type)).encode('utf-8').strip())
+        print("\n".join(pyfnalsnow.tktString(tkt, type=opt.string_type)).strip())
     except Exception as e:
         print(e)
         sys.exit(-1)

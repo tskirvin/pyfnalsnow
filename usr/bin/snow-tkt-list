@@ -1,7 +1,7 @@
 #!/bin/bash
 
 snow-incident-list $@
-snow-ritm-list     $@
+snow-ritm-list $@
 
 exit 0
 
@@ -13,7 +13,7 @@ exit 0
 # above exit line, this should never be executed.
 DOCS=<<__END_OF_DOCS__
 
-=head1 
+=head1
 
 snow-tkt-list - run snow-incident-list and snow-ritm-list
 

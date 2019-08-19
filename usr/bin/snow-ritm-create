@@ -41,7 +41,7 @@ def submitRequest(request):
     try:
         j = response.json()
         ritm = j['items'][0]['number']
-        req  = j['request']
+        req = j['request']
         if opt.debug: print("%s / %s" % (req, ritm))
         return (req, ritm)
     except Exception as e:
@@ -55,20 +55,19 @@ def submitRequest(request):
 
 def main():
     global p
-    p = optparse.OptionParser (usage = usage, description = description)
-    p.add_option ('--debug', dest='debug', action='store_true', default=False)
-    p.add_option ('--config', dest='config', action='store',
+    p = optparse.OptionParser(usage=usage, description=description)
+    p.add_option('--debug', dest='debug', action='store_true', default=False)
+    p.add_option('--config', dest='config', action='store',
         default=config_file)
-    p.add_option ('--group', dest='group', action='store', default='')
-    p.add_option ('--priority', dest='priority', action='store', default=None)
-    p.add_option ('--urgency', dest='urgency', action='store', default=None)
-    p.add_option ('--category', dest='category', action='store', default=None)
-    p.add_option ('--user', dest='user', action='store', 
+    p.add_option('--group', dest='group', action='store', default='')
+    p.add_option('--priority', dest='priority', action='store', default=None)
+    p.add_option('--urgency', dest='urgency', action='store', default=None)
+    p.add_option('--category', dest='category', action='store', default=None)
+    p.add_option('--user', dest='user', action='store',
         default=getpass.getuser())
 
     global opt
     opt, args = p.parse_args()
-
 
     if len(args) < 1:
         p.print_help()
@@ -79,7 +78,7 @@ def main():
 
     global config
     config = pyfnalsnow.pyfnalsnow_config(opt.config)
-    snow = pyfnalsnow.connect()
+    pyfnalsnow.connect()
 
     ret = []
 
@@ -90,8 +89,8 @@ def main():
 
     if opt.group != '':
         try:
-            g = pyfnalsnow.groupByName(opt.group)
-        except Exception as e:
+            pyfnalsnow.groupByName(opt.group)
+        except Exception:
             print("group %s does not exist in SNOW" % opt.group)
             sys.exit(-1)
 
@@ -105,14 +104,13 @@ def main():
     ret = submitRequest(base)
     for i in ret:
         t = config['ritm_template']
-        if opt.group    != '': t['assignment_group'] = opt.group
+        if opt.group != '': t['assignment_group'] = opt.group
         if opt.category: t['u_categorization'] = opt.category
         if opt.priority: t['priority'] = opt.priority
-        if opt.urgency : t['urgency']  = opt.urgency
+        if opt.urgency: t['urgency'] = opt.urgency
 
         tkt = pyfnalsnow.tktUpdate(i, t)
-        print("\n".join(pyfnalsnow.tktString(tkt, \
-            type='short')).encode('utf-8').strip())
+        print("\n".join(pyfnalsnow.tktString(tkt, type='short')).strip())
         print("")
 
     sys.exit(0)
@@ -139,8 +137,8 @@ echo "my body" | B<snow-ritm-create> "my subject" --group "SSI Internal"
 =head1 USAGE
 
 snow-ritm-create creates a new sc_request (request) and sc_req_item (RITM)
-pair in Service Now (SNOW), and prints a short summary of the new objects 
-to STDOUT.  
+pair in Service Now (SNOW), and prints a short summary of the new objects
+to STDOUT.
 
 Additional template data for the created item come out of the
 F<ritm_template> section of the config file.

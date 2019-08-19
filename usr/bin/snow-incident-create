@@ -11,7 +11,7 @@ config_file = '/etc/snow/config.yaml'
 #########################################################################
 
 import pyfnalsnow
-import getpass, json, optparse, pprint, requests, sys, yaml
+import getpass, json, optparse, requests, sys, yaml
 
 description = "create an Incident in SNOW"
 usage = "%prog [options] subject"
@@ -45,13 +45,13 @@ def submitRequest(request):
 
 def main():
     global p
-    p = optparse.OptionParser (usage = usage, description = description)
-    p.add_option ('--debug', dest='debug', action='store_true', default=False)
-    p.add_option ('--config', dest='config', action='store',
-        default=config_file)
-    p.add_option ('--user', dest='user', action='store',
-        default=getpass.getuser())
-    p.add_option ('--ticket', dest='ticket', action='store', default=None)
+    p = optparse.OptionParser(usage=usage, description=description)
+    p.add_option('--debug', dest='debug', action='store_true', default=False)
+    p.add_option('--config', dest='config', action='store',
+                 default=config_file)
+    p.add_option('--user', dest='user', action='store',
+                 default=getpass.getuser())
+    p.add_option('--ticket', dest='ticket', action='store', default=None)
 
     global opt
     opt, args = p.parse_args()
@@ -61,7 +61,7 @@ def main():
         sys.exit(-1)
 
     ## load the ticket out of a YAML file
-    if opt.ticket == None:
+    if opt.ticket is None:
         p.print_help()
         sys.exit(-1)
     try:
@@ -84,7 +84,7 @@ def main():
 
     global config
     config = pyfnalsnow.pyfnalsnow_config(opt.config)
-    snow = pyfnalsnow.connect()
+    pyfnalsnow.connect()
 
     u = pyfnalsnow.userByUsername(opt.user)
     if not u:
@@ -94,8 +94,8 @@ def main():
 
     number = submitRequest(ticket)
     tkt = pyfnalsnow.tktByNumber(number)
-    print (u"\n".join(pyfnalsnow.tktString(tkt, \
-        type='short')).encode('utf-8').strip())
+    print ("\n".join(pyfnalsnow.tktString(tkt,
+        type='short')).strip())
 
     sys.exit(0)
 

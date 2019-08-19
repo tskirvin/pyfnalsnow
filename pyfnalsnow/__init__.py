@@ -31,7 +31,7 @@ types = {
 ### Declarations ########################################################
 #########################################################################
 
-import pprint, pysnow, re, sys, yaml
+import pysnow, re, sys, yaml
 import pyfnalsnow.Incident, pyfnalsnow.Request, pyfnalsnow.RITM
 
 import urllib3
@@ -54,6 +54,7 @@ urgency = {
 ### Configuration Subroutines ###########################################
 #########################################################################
 
+
 def pyfnalsnow_config(file=config_file):
     """
     Load a yaml configuration from a configuration file.  Sets a global
@@ -65,10 +66,10 @@ def pyfnalsnow_config(file=config_file):
         config = yaml.load(open(file, 'r'))
     except IOError as e:
         print("file error:  %s" % e)
-        sys.exit (2)
+        sys.exit(2)
     except Exception as e:
         print("unknown error:  %s" % e)
-        sys.exit (2)
+        sys.exit(2)
 
     return config
 
@@ -119,12 +120,14 @@ def cacheQueryOne(table, query):
             for record in r.all():
                 entries.append(record)
             if len(entries) == 0:
-                raise Exception('no matching entries (%s vs %s)' % (query, table))
+                raise Exception('no matching entries (%s vs %s)'
+                    % (query, table))
             elif len(entries) > 1:
-                raise Exception('too many entries (%s) (%s vs %s)' % (len(entries), query, table))
+                raise Exception('too many entries (%s) (%s vs %s)'
+                     % (len(entries), query, table))
             result = entries[0]
-        except Exception as e:
-            result = { 'value': '(no match)' }
+        except Exception as e:  # noqa: F841
+            result = {'value': '(no match)'}
         cache[table][q] = result
     return cache[table][q]
 
@@ -156,33 +159,35 @@ def typeSwitch(tkt, function, **kwargs):
 ### Reporting Functions #################################################
 #########################################################################
 
-def tktString (tkt, type='base', *args, **kwargs):
+
+def tktString(tkt, type='base', *args, **kwargs):
     """
     Create a string summarizing ticket data, and return as an array.
     """
 
-    if   type == 'audit':   return tktStringBaseAudit(tkt, **kwargs)
-    elif type == 'base':    return tktStringBase(tkt, **kwargs)
-    elif type == 'debug':   return tktStringDebug(tkt, **kwargs)
-    elif type == 'short':   return tktStringShort(tkt, **kwargs)
+    if type == 'audit': return tktStringBaseAudit(tkt, **kwargs)
+    elif type == 'base': return tktStringBase(tkt, **kwargs)
+    elif type == 'debug': return tktStringDebug(tkt, **kwargs)
+    elif type == 'short': return tktStringShort(tkt, **kwargs)
     elif type == 'worklog': return tktStringWorklog(tkt, **kwargs)
     else:
         raise Exception('unknown string type: %s' % type)
 
 def tktIsResolved(tkt): return typeSwitch(tkt, 'tktIsResolved')
 
-def tktStringAssignee(tkt):    return typeSwitch(tkt, 'tktStringAssignee')
-def tktStringAudit(tkt):       return typeSwitch(tkt, 'tktStringAudit')
-def tktStringBase(tkt):        return typeSwitch(tkt, 'tktStringBase')
-def tktStringBaseAudit(tkt):   return typeSwitch(tkt, 'tktStringBaseAudit')
-def tktStringDebug(tkt):       return typeSwitch(tkt, 'tktStringDebug')
+def tktStringAssignee(tkt): return typeSwitch(tkt, 'tktStringAssignee')
+def tktStringAudit(tkt): return typeSwitch(tkt, 'tktStringAudit')
+def tktStringBase(tkt): return typeSwitch(tkt, 'tktStringBase')
+def tktStringBaseAudit(tkt): return typeSwitch(tkt, 'tktStringBaseAudit')
+def tktStringDebug(tkt): return typeSwitch(tkt, 'tktStringDebug')
 def tktStringDescription(tkt): return typeSwitch(tkt, 'tktStringDescription')
-def tktStringJournal(tkt):     return typeSwitch(tkt, 'tktStringJournal')
-def tktStringPrimary(tkt):     return typeSwitch(tkt, 'tktStringPrimary')
-def tktStringRequestor(tkt):   return typeSwitch(tkt, 'tktStringRequestor')
-def tktStringResolution(tkt):  return typeSwitch(tkt, 'tktStringResolution')
-def tktStringShort(tkt):       return typeSwitch(tkt, 'tktStringShort')
-def tktStringSummary(tkt):     return typeSwitch(tkt, 'tktStringSummary')
+def tktStringJournal(tkt): return typeSwitch(tkt, 'tktStringJournal')
+def tktStringPrimary(tkt): return typeSwitch(tkt, 'tktStringPrimary')
+def tktStringRequestor(tkt): return typeSwitch(tkt, 'tktStringRequestor')
+def tktStringResolution(tkt): return typeSwitch(tkt, 'tktStringResolution')
+def tktStringShort(tkt): return typeSwitch(tkt, 'tktStringShort')
+def tktStringSummary(tkt): return typeSwitch(tkt, 'tktStringSummary')
+def tktStringWorklog(tkt): return typeSwitch(tkt, 'tktStringWorklog')
 
 #########################################################################
 ### ServiceNow Searching ################################################
@@ -193,28 +198,28 @@ def ciById(id):
     Pull a cmdb_ci by sys_id.  Goes through cacheQueryOne(), so
     future calls are cached.
     """
-    return cacheQueryOne('cmdb_ci', query={ 'sys_id': id })
+    return cacheQueryOne('cmdb_ci', query={'sys_id': id})
 
 def ciByName(name):
     """
     Pull a cmdb_ci by name.  Goes through cacheQueryOne(), so
     future calls are cached.
     """
-    return cacheQueryOne('cmdb_ci', query={ 'name': name })
+    return cacheQueryOne('cmdb_ci', query={'name': name})
 
 def groupById(id):
     """
     Pull a sys_user_group entry by sys_id.  Goes through cacheQueryOne(), so
     future calls are cached.
     """
-    return cacheQueryOne('sys_user_group', query={ 'sys_id': id })
+    return cacheQueryOne('sys_user_group', query={'sys_id': id})
 
 def groupByName(name):
     """
     Pull a sys_user_group entry by name.  Goes through cacheQueryOne(), so
     future calls are cached.
     """
-    return cacheQueryOne('sys_user_group', query={ 'name': name })
+    return cacheQueryOne('sys_user_group', query={'name': name})
 
 def groupLink(group):
     """
@@ -256,11 +261,8 @@ def tktHistory(tkt):
     Given a full ticket, query for associated sys_history_line objects.
     """
 
-    number = tkt['number']
-
-    s = snow
     r = snow.resource(api_path='/table/%s' % 'sys_history_line').get(
-        query={ 'set.id': tkt['sys_id'] },
+        query={'set.id': tkt['sys_id']},
         stream=True
     )
     entries = []
@@ -288,12 +290,8 @@ def tktJournalEntries(tkt):
     Given a full ticket, query for journal entries.
     """
 
-    number = tkt['number']
-
     r = snow.resource(api_path='/table/%s' % 'sys_journal_field').get(
-        query={ 'element_id': tkt['sys_id'] },
-        stream=True
-    )
+        query={'element_id': tkt['sys_id']}, stream=True)
     entries = []
     for record in r.all(): entries.append(record)
 
@@ -316,7 +314,8 @@ def tktSearch(table, **args):
 
     try:
         search = tableSwitch(table, 'tktFilter', **args)
-        r = snow.resource(api_path='/table/%s' % table).get(query=search, stream=True)
+        r = snow.resource(api_path='/table/%s' % table).get(query=search,
+            stream=True)
     except Exception as e:
         raise e
 
@@ -351,21 +350,21 @@ def userById(id):
     Pull a sys_user entry by sys_id.  Goes through cacheQueryOne(), so
     future falls are cached.
     """
-    return cacheQueryOne('sys_user', query={ 'sys_id': id })
+    return cacheQueryOne('sys_user', query={'sys_id': id})
 
 def userByName(name):
     """
     Pull a sys_user entry by name.  Goes through cacheQueryOne(), so
     future falls are cached.
     """
-    return cacheQueryOne('sys_user', query={ 'name': name })
+    return cacheQueryOne('sys_user', query={'name': name})
 
 def userByUsername(name):
     """
     Pull a sys_user entry by user_name.  Goes through cacheQueryOne(), so
     future falls are cached.
     """
-    return cacheQueryOne('sys_user', query={ 'user_name': name })
+    return cacheQueryOne('sys_user', query={'user_name': name})
 
 def userInGroup(username, group):
     """
@@ -387,7 +386,7 @@ def userInGroups(username):
     ret = []
     if me:
         r = snow.resource(api_path='/table/%s' % 'sys_user_grmember').get(
-            query={ 'user': me['sys_id'] },
+            query={'user': me['sys_id']},
             stream=True
         )
         for g in r.all():
@@ -437,12 +436,12 @@ def tktNumberParse(number):
     m = re.match('^(TASK|RITM|INC|REQ|PRJTASK)(\d+)$', number, re.IGNORECASE)
     if m:
         type = m.group(1).upper()
-        num  = m.group(2)
+        num = m.group(2)
         length = len(number)
-        if type == 'INC':     return 'INC%s%s'     % ('0' * (15 - length), num)
-        if type == 'REQ':     return 'REQ%s%s'     % ('0' * (15 - length), num)
-        if type == 'TASK':    return 'TASK%s%s'    % ('0' * (11 - length), num)
-        if type == 'RITM':    return 'RITM%s%s'    % ('0' * (11 - length), num)
+        if type == 'INC': return 'INC%s%s' % ('0' * (15 - length), num)
+        if type == 'REQ': return 'REQ%s%s' % ('0' * (15 - length), num)
+        if type == 'TASK': return 'TASK%s%s' % ('0' * (11 - length), num)
+        if type == 'RITM': return 'RITM%s%s' % ('0' * (11 - length), num)
         if type == 'PRJTASK': return 'PRJTASK%s%s' % ('0' * (11 - length), num)
         raise 'unknown ticket type: %s' % type
 
@@ -461,11 +460,11 @@ def tktType(number):
     m = re.match('^(TASK|RITM|INC|REQ|PRJTASK)(\d+)$', num, re.IGNORECASE)
     if m:
         type = m.group(1).upper()
-        if type == 'INC':       return 'incident'
-        if type == 'PRJTASK':   return 'pm_project_task'
-        if type == 'REQ':       return 'sc_request'
-        if type == 'RITM':      return 'sc_req_item'
-        if type == 'TASK':      return 'sc_task'
+        if type == 'INC': return 'incident'
+        if type == 'PRJTASK': return 'pm_project_task'
+        if type == 'REQ': return 'sc_request'
+        if type == 'RITM': return 'sc_req_item'
+        if type == 'TASK': return 'sc_task'
 
     raise 'unknown ticket type for %s' % number
 
