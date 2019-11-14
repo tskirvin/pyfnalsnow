@@ -8,6 +8,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.3.2] - 2019-11-14
+
+* fixes to make user 'guest' work more cleanly without crashing snow-tkt
+    - __init__.py - CacheQueryOne() now returns None instead of a weird
+      'value' block
+    - ticket.py - touch-ups for Requestor Info block
+    - * snow-tkt - better job of reporting exceptions
+
 ## [1.3.1] - 2019-08-19
 
 * RITM.py - 'unresolved' search in tktFilter() now includes 'pending'.

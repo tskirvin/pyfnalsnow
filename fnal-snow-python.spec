@@ -1,6 +1,6 @@
 Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
-Version:        1.3.1
+Version:        1.3.2
 Release:        0%{?dist}
 Group:          Applications/System
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -52,6 +52,10 @@ python3 setup.py install --prefix=${RPM_BUILD_ROOT}/usr \
 %{python3_sitelib}/*egg-info
 
 %changelog
+* Thu Nov 14 2019   Tim Skirvin <tskirvin@fnal.gov> 1.3.2-0
+- fixes to make requestor work better with user guest, and to handle
+  errors a bit more gracefully
+
 * Mon Aug 19 2019   Tim Skirvin <tskirvin@fnal.gov> 1.3.1-0
 - RITM.py - tktPending() 'unresolved' search now includes pending
 

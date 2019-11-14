@@ -127,7 +127,7 @@ def cacheQueryOne(table, query):
                      % (len(entries), query, table))
             result = entries[0]
         except Exception as e:  # noqa: F841
-            result = {'value': '(no match)'}
+            result = None
         cache[table][q] = result
     return cache[table][q]
 
@@ -317,7 +317,7 @@ def tktSearch(table, **args):
         r = snow.resource(api_path='/table/%s' % table).get(query=search,
             stream=True)
     except Exception as e:
-        raise e
+        raise("search error: %s" % e)
 
     ret = []
     for i in r.all():

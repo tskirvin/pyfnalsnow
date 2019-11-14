@@ -44,7 +44,7 @@ def main():
         tkt = pyfnalsnow.tktByNumber(number)
         print("\n".join(pyfnalsnow.tktString(tkt, type=opt.string_type)).strip())
     except Exception as e:
-        print(e)
+        print("exception: %s" % e)
         sys.exit(-1)
 
     sys.exit(0)

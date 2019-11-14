@@ -255,12 +255,15 @@ def tktStringRequestor(tkt):
     """
     extra = {}
     ret = []
+    ret.append('Requestor Info')
 
     requestor = pyfnalsnow.userByUsername(tktRequestPerson(tkt))
-
-    ret.append('Requestor Info')
-    ret.extend(formatTextField('Name',  requestor['name'],  **extra))
-    ret.extend(formatTextField('Email', requestor['email'], **extra))
+    if requestor is not None:
+        ret.extend(formatTextField('Name',  requestor['name'],  **extra))
+        ret.extend(formatTextField('Email', requestor['email'], **extra))
+    else:
+        ret.extend(formatTextField('Name',  '', **extra))
+        ret.extend(formatTextField('Email', '', **extra))
 
     return ret
 
