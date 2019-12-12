@@ -8,6 +8,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+* added CentOS 8 support (mostly Requires and BuildRequires work)
+
 ## [1.3.2] - 2019-11-14
 
 * fixes to make user 'guest' work more cleanly without crashing snow-tkt

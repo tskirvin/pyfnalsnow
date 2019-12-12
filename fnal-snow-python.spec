@@ -7,9 +7,15 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Source0:        %{name}-%{version}-%{release}.tar.gz
 BuildArch:      noarch
 
+%if 0%{?rhel} == 8
+Requires:       python3 python3-requests python3-PyYAML
+# also pysnow and iso8601, no rpm available for that yet
+BuildRequires:  python3 python3-setuptools python3-rpm-macros rsync perl-podlators
+%else
 Requires:       python36 python36-iso8601 python36-requests python36-PyYAML
 # also pysnow, no rpm available for that yet
-BuildRequires:  python36 python36-setuptools python3-rpm-macros rsync
+BuildRequires:  python36 python36-setuptools python3-rpm-macros rsync perl-podlators
+%endif
 Vendor:         ECF-SSI
 License:        Artistic 2.0
 URL:            http://www.fnal.gov/
@@ -39,6 +45,8 @@ rsync -Crlpt ./usr ${RPM_BUILD_ROOT}
 
 python3 setup.py install --prefix=${RPM_BUILD_ROOT}/usr \
     --single-version-externally-managed --record=installed_files
+
+rm -rf ${RPM_BUILD_ROOT}/usr/bin/.mypy_cache
 
 %clean
 # Adding empty clean section per rpmlint.  In this particular case, there is
