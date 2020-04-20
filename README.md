@@ -72,9 +72,9 @@ install oauthlib 2.0.7: `pip install oauthlib==2.0.7`.
 
     servicenow:
         username: '(USERNAME)'
-        url:      'https://(SITENAME).service-now.com/'
+        url:      'https://(SITENAME).servicenowservices.com/'
         password: '(PASSWORD)'
-        instance: '(INSTANCE)'
+        hostname: '(SITENAME).servicenowservices.com'
 
     ritm_template:
         priority: '3'

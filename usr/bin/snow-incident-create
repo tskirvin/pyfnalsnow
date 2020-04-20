@@ -23,7 +23,7 @@ usage = "%prog [options] subject"
 def submitRequest(request):
     """
     """
-    url = "%s/api/now/v1/table/incident" % (config['servicenow']['url'])
+    url = "https://%s/api/now/v1/table/incident" % (config['servicenow']['hostname'])
     auth = (config['servicenow']['username'], config['servicenow']['password'])
     headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
 

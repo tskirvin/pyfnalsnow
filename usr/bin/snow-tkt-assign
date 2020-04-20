@@ -96,8 +96,8 @@ def main():
             g = tkt['assignment_group']
 
     if opt.debug:
-        u = update['assigned_to']
-        g = update['assignment_group']
+        u = user
+        g = group
         print("Assigning tkt %s to %s/%s" % (number, g, u))
 
     try:

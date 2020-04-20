@@ -33,7 +33,7 @@ template = {
 def submitRequest(request):
     """
     """
-    url = "%s/service.do" % (config['servicenow']['url'])
+    url = "https://%s/service.do" % (config['servicenow']['hostname'])
     auth = (config['servicenow']['username'], config['servicenow']['password'])
     headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
 

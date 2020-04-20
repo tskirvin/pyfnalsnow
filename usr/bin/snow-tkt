@@ -86,7 +86,7 @@ F</etc/snow/config.yaml>.
 
 If set, prints some debugging data.
 
-==item --type [base|debug|worklog|audit]
+=item --type [base|debug|worklog|audit]
 
 What kind of output do you want to see?  Defaults to 'base'.
 

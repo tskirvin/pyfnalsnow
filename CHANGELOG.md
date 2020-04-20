@@ -8,7 +8,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.4.0] - 2020-04-20
+
 * added CentOS 8 support (mostly Requires and BuildRequires work)
+* snow-tkt - documentation formatting fix
+* no longer using 'instance', now need 'hostname' for configuration
+  (because instance isn't stable enough)
+* `userLink()` - more general form of userLinkName() and usrLinkUsername()
+* snow-tkt-assign - bug fixes for `--debug` call
 
 ## [1.3.2] - 2019-11-14
 

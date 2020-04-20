@@ -257,13 +257,20 @@ def tktStringRequestor(tkt):
     ret = []
     ret.append('Requestor Info')
 
-    requestor = pyfnalsnow.userByUsername(tktRequestPerson(tkt))
+    requestor = tktCallingPerson(tkt)
     if requestor is not None:
-        ret.extend(formatTextField('Name',  requestor['name'],  **extra))
-        ret.extend(formatTextField('Email', requestor['email'], **extra))
+        username = pyfnalsnow.userLink(requestor)
+        if username is not None:
+            ret.extend(formatTextField('Name',  username['name'], **extra))
+            ret.extend(formatTextField('Email', username['email'], **extra))
+        else:
+            ret.extend(formatTextField('Name',  '', **extra))
+            ret.extend(formatTextField('Email', '', **extra))
     else:
         ret.extend(formatTextField('Name',  '', **extra))
         ret.extend(formatTextField('Email', '', **extra))
+
+    ret.extend(formatTextField('Submitted-By', tktRequestPerson(tkt), **extra))
 
     return ret
 
@@ -364,7 +371,7 @@ def _FieldOrEmpty(tkt, *field):
 
 def tktAssignedPerson(tkt): return pyfnalsnow.userLinkName(tkt['assigned_to'])
 def tktAssignedGroup(tkt): return pyfnalsnow.groupLink(tkt['assignment_group'])
-def tktCallingPerson(tkt): return tkt['caller_id']
+def tktCallingPerson(tkt): return _FieldOrEmpty(tkt, 'caller_id')
 def tktCiName(tkt):
     try:
         ci_entry = tkt['cmdb_ci']

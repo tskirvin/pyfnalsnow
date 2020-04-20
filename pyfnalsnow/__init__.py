@@ -86,7 +86,7 @@ def connect():
     global snow
 
     snow = pysnow.Client(
-        instance=config['servicenow']['instance'],
+        host=config['servicenow']['hostname'],
         user=config['servicenow']['username'],
         password=config['servicenow']['password']
     )
@@ -394,6 +394,18 @@ def userInGroups(username):
             group = groupById(id)
             ret.append(group['name'])
     return ret
+
+def userLink(user):
+    """
+    Convert a 'user' style object to a data structure.  This is the data
+    structure that sometimes appears in the middle of standard results.
+    """
+    if isinstance(user, dict):
+        if 'value' in user:
+            if user['value'] == '0': return '*nobody*'
+            u = pyfnalsnow.userById(user['value'])
+            return u
+    return user
 
 def userLinkName(user):
     """

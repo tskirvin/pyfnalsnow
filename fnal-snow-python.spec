@@ -1,6 +1,6 @@
 Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
-Version:        1.3.2
+Version:        1.4.0
 Release:        0%{?dist}
 Group:          Applications/System
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -60,6 +60,10 @@ rm -rf ${RPM_BUILD_ROOT}/usr/bin/.mypy_cache
 %{python3_sitelib}/*egg-info
 
 %changelog
+* Mon Apr 20 2020   Tim Skirvin <tskirvin@fnal.gov> 1.4.0-0
+- updated to work with new SNOW (where it's not at service-now.com anymore) 
+- bug fixes
+
 * Thu Nov 14 2019   Tim Skirvin <tskirvin@fnal.gov> 1.3.2-0
 - fixes to make requestor work better with user guest, and to handle
   errors a bit more gracefully
