@@ -8,6 +8,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+* RITM.py - tktIsResolved() now says "False" for work-in-progress tickets
+
 ## [1.4.0] - 2020-04-20
 
 * added CentOS 8 support (mostly Requires and BuildRequires work)

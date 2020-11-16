@@ -83,7 +83,7 @@ def tktIsResolved(tkt):
     """
     if tkt['state'] == '3': return True         # closed
     if tkt['state'] == '24': return True        # cancelled
-    if tkt['state'] == '23': return True        # work in progress?  huh?
+    if tkt['state'] == '23': return False       # work in progress?
     if tkt['state'] == '11': return True        # Complete
     else: return False
 
