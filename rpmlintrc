@@ -1,0 +1,2 @@
+# This is apparently a bug
+addFilter ("^fnal-snow-python.noarch:.*python-bytecode-without-source")

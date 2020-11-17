@@ -1,6 +1,6 @@
 Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
-Version:        1.4.0
+Version:        1.4.1
 Release:        0%{?dist}
 Group:          Applications/System
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -56,10 +56,15 @@ rm -rf ${RPM_BUILD_ROOT}/usr/bin/.mypy_cache
 %defattr(-,root,root)
 /usr/bin/*
 /usr/share/man/man1/*
-%{python3_sitelib}/pyfnalsnow/*py*
+%{python3_sitelib}/pyfnalsnow/*.py*
+%{python3_sitelib}/pyfnalsnow/__pycache__/*.pyc
 %{python3_sitelib}/*egg-info
 
 %changelog
+* Mon Nov 16 2020   Tim Skirvin <tskirvin@fnal.gov> 1.4.1-0
+- RITM.py - tktIsResolved() now says "False" for work-in-progress tickets
+- various Exceptions fixed
+
 * Mon Apr 20 2020   Tim Skirvin <tskirvin@fnal.gov> 1.4.0-0
 - updated to work with new SNOW (where it's not at service-now.com anymore) 
 - bug fixes

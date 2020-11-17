@@ -317,7 +317,7 @@ def tktSearch(table, **args):
         r = snow.resource(api_path='/table/%s' % table).get(query=search,
             stream=True)
     except Exception as e:
-        raise("search error: %s" % e)
+        raise Exception("search error: %s" % e)
 
     ret = []
     for i in r.all():
@@ -455,13 +455,13 @@ def tktNumberParse(number):
         if type == 'TASK': return 'TASK%s%s' % ('0' * (11 - length), num)
         if type == 'RITM': return 'RITM%s%s' % ('0' * (11 - length), num)
         if type == 'PRJTASK': return 'PRJTASK%s%s' % ('0' * (11 - length), num)
-        raise 'unknown ticket type: %s' % type
+        raise Exception('unknown ticket type: %s' % type)
 
     elif re.match('^(\d+)$', number):
         return "INC%s%s" % ('0' * (12 - len(number)), number)
 
     else:
-        raise 'could not parse "%s"' % number
+        raise Exception('could not parse "%s"' % number)
 
 def tktType(number):
     """
@@ -478,7 +478,7 @@ def tktType(number):
         if type == 'RITM': return 'sc_req_item'
         if type == 'TASK': return 'sc_task'
 
-    raise 'unknown ticket type for %s' % number
+    raise Exception('unknown ticket type for %s' % number)
 
 #########################################################################
 ### main () #############################################################

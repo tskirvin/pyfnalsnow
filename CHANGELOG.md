@@ -8,7 +8,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.4.1] - 2020-11-16
+
 * RITM.py - tktIsResolved() now says "False" for work-in-progress tickets
+* various Exceptions fixed
 
 ## [1.4.0] - 2020-04-20
 
