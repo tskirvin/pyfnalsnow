@@ -8,6 +8,7 @@ pyfnalsnow.Incident - parse Incident objects.  These are pretty much the
 #########################################################################
 
 import pyfnalsnow
+from datetime import datetime, timedelta
 
 from pyfnalsnow.ticket import tktStringAssignee     # noqa:F401
 from pyfnalsnow.ticket import tktStringAudit        # noqa:F401
@@ -74,7 +75,20 @@ def tktFilter(status='open', **args):
             extra.append('caller_id=%s' % user['sys_id'])
         except: pass
 
+    if 'age' in args:
+        if args['age'] is not None:
+            age = int(args['age'])
+            now = datetime.now()
+            then = now - timedelta(days=age)
+            try:
+                extra.append('opened_at<%s' % then.strftime("%Y-%m-%d"))
+            except: pass
+
     search = '^'.join(extra)
+
+    if 'debug' in args:
+        if args['debug']:
+            print("debug: %s" % search)
 
     return search
 

@@ -8,6 +8,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.4.2] - 2020-12-01
+
+* Incident.py - can now search by ticket age
+* Incident.py - added debugging information to tktFilter()
+* snow-incident-list - search by ticket age
+
 ## [1.4.1] - 2020-11-16
 
 * RITM.py - tktIsResolved() now says "False" for work-in-progress tickets

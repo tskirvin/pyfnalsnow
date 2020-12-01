@@ -45,6 +45,7 @@ def main():
     p.add_option('--subquery', dest='subquery', action='store', default='open',
         choices=['closed', 'open', 'unresolved'])
     p.add_option('--caller', dest='caller', action='store', default=None)
+    p.add_option('--age', dest='age', action='store', default=None)
 
     global opt
     opt, args = p.parse_args()
@@ -65,7 +66,8 @@ def main():
             ret.append("== Unresolved Incidents assigned to group '%s' ==" % g)
 
             for t in pyfnalsnow.tktSearch('incident', group=g,
-              status=opt.subquery, caller=opt.caller):
+              status=opt.subquery, caller=opt.caller, age=opt.age,
+              debug=opt.debug):
                 summary = pyfnalsnow.tktStringSummary(t)
                 ret.append('')
                 ret.extend(summary)
@@ -75,7 +77,8 @@ def main():
         ret.append("== Unresolved Incidents assigned to user '%s' =="
             % opt.user)
         for t in pyfnalsnow.tktSearch('incident', assigned=opt.user,
-                status=opt.subquery, caller=opt.caller):
+                status=opt.subquery, caller=opt.caller, age=opt.age,
+                debug=opt.debug):
             summary = pyfnalsnow.tktStringSummary(t)
             ret.append('')
             ret.extend(summary)
@@ -85,7 +88,8 @@ def main():
         ret.append("== Unresolved Incidents submitted by user '%s' =="
             % opt.user)
         for t in pyfnalsnow.tktSearch('incident', submit=opt.user,
-                status=opt.subquery, caller=opt.caller):
+                status=opt.subquery, caller=opt.caller, age=opt.age,
+                debug=opt.debug):
             summary = pyfnalsnow.tktStringSummary(t)
             ret.append('')
             ret.extend(summary)
@@ -140,6 +144,10 @@ F</etc/snow/config.yaml>.
 =item --debug
 
 If set, prints some debugging data.
+
+=item --age I<age>
+
+Ignore tickets under I<age> days old.  No default.
 
 =item --caller I<username>
 
@@ -203,7 +211,7 @@ Tim Skirvin <tskirvin@fnal.gov>
 
 =head1 COPYRIGHT
 
-Copyright 2017-2018, Fermi National Accelerator Laboratory
+Copyright 2017-2020, Fermi National Accelerator Laboratory
 
 This program is free software; you may redistribute it and/or modify
 it under the same terms as Perl itself.

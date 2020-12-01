@@ -1,6 +1,6 @@
 Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
-Version:        1.4.1
+Version:        1.4.2
 Release:        0%{?dist}
 Group:          Applications/System
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -61,6 +61,10 @@ rm -rf ${RPM_BUILD_ROOT}/usr/bin/.mypy_cache
 %{python3_sitelib}/*egg-info
 
 %changelog
+* Tue Dec  1 2020   Tim Skirvin <tskirvin@fnal.gov> 1.4.2-0
+- Incident.py + snow-incident-list - can now search by age (number of days
+  since the ticket was created)
+
 * Mon Nov 16 2020   Tim Skirvin <tskirvin@fnal.gov> 1.4.1-0
 - RITM.py - tktIsResolved() now says "False" for work-in-progress tickets
 - various Exceptions fixed
