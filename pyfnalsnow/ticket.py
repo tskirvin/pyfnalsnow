@@ -282,13 +282,20 @@ def tktStringResolution(tkt):
     """
     extra = {}
     ret = []
-    ret.append("Resolution")
     resolvedBy = pyfnalsnow.userLinkName(tkt['closed_by'])
-    ret.extend(formatTextField('Resolved By', resolvedBy,  **extra))
-    ret.extend(formatTextField('Date', tkt['closed_at'], **extra))
+    if tkt['u_itil_state'] == 'Cancelled':
+        ret.append('Cancelled')
+        ret.extend(formatTextField('Resolved By', resolvedBy,  **extra))
+        ret.extend(formatTextField('Date', tkt['closed_at'], **extra))
+    else:
+        ret.append("Resolution")
+        ret.extend(formatTextField('Resolved By', resolvedBy,  **extra))
+        ret.extend(formatTextField('Date', tkt['closed_at'], **extra))
+
     ret.append('')
-    ret.extend(formatText(tkt['close_notes']), **extra)
-    ret.append('')
+    if 'close_notes' in tkt:
+        ret.extend(formatText(tkt['close_notes']), **extra)
+        ret.append('')
 
     return ret
 

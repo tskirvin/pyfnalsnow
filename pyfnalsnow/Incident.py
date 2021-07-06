@@ -93,7 +93,7 @@ def tktFilter(status='open', **args):
     return search
 
 def tktIsResolved(tkt):
-    if int(tkt['incident_state']) >= 4: return True
+    if int(tkt['incident_state']) > 2: return True
     else: return False
 
 def tktPending(tkt, **kwargs):
@@ -117,12 +117,19 @@ def tktStringResolution(tkt):
     extra = {}
     ret = []
     ret.append("Resolution")
-    resolvedBy = pyfnalsnow.userLinkName(tkt['resolved_by'])
-    ret.extend(pyfnalsnow.ticket.formatTextField('Resolved By', resolvedBy,  **extra))
-    ret.extend(pyfnalsnow.ticket.formatTextField('Date', tkt['resolved_at'], **extra))
-    ret.append('')
-    ret.extend(pyfnalsnow.ticket.formatText(tkt['close_notes']), **extra)
-    ret.append('')
+    if tkt['u_itil_state'] == 'Cancelled':
+        resolvedBy = pyfnalsnow.userLinkName(tkt['closed_by'])
+        ret.extend(pyfnalsnow.ticket.formatTextField('Cancelled', tkt['close_code'], **extra))
+        ret.extend(pyfnalsnow.ticket.formatTextField('Resolved By', resolvedBy,  **extra))
+        ret.extend(pyfnalsnow.ticket.formatTextField('Date', tkt['closed_at'], **extra))
+        ret.append('')
+    else:
+        resolvedBy = pyfnalsnow.userLinkName(tkt['resolved_by'])
+        ret.extend(pyfnalsnow.ticket.formatTextField('Resolved By', resolvedBy,  **extra))
+        ret.extend(pyfnalsnow.ticket.formatTextField('Date', tkt['resolved_at'], **extra))
+        ret.append('')
+        ret.extend(pyfnalsnow.ticket.formatText(tkt['close_notes']), **extra)
+        ret.append('')
 
     return ret
 

@@ -1,6 +1,6 @@
 Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
-Version:        1.4.2
+Version:        1.4.3
 Release:        0%{?dist}
 Group:          Applications/System
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -61,6 +61,11 @@ rm -rf ${RPM_BUILD_ROOT}/usr/bin/.mypy_cache
 %{python3_sitelib}/*egg-info
 
 %changelog
+* Tue Jul  6 2021   Tim Skirvin <tskirvin@fnal.gov> 1.4.3-0
+- ticket.py, Incident.py - recognizing 'Cancelled' tickets when printing
+  resolutions, and doing a better job of recognizing when tickets are
+  actually resolved in the first place
+
 * Tue Dec  1 2020   Tim Skirvin <tskirvin@fnal.gov> 1.4.2-0
 - Incident.py + snow-incident-list - can now search by age (number of days
   since the ticket was created)
@@ -70,7 +75,7 @@ rm -rf ${RPM_BUILD_ROOT}/usr/bin/.mypy_cache
 - various Exceptions fixed
 
 * Mon Apr 20 2020   Tim Skirvin <tskirvin@fnal.gov> 1.4.0-0
-- updated to work with new SNOW (where it's not at service-now.com anymore) 
+- updated to work with new SNOW (where it's not at service-now.com anymore)
 - bug fixes
 
 * Thu Nov 14 2019   Tim Skirvin <tskirvin@fnal.gov> 1.3.2-0

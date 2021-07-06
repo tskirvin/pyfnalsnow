@@ -8,6 +8,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.4.3] - 2021-07-06
+
+* Incident.py - changing how we detect resolved tickets.
+* Incident.py - tktStringResolution() sees cancelled tickets and
+  prints different information for them
+* ticket.py - tktStringResolution() sees cancelled tickets and
+  prints different information for them
+
 ## [1.4.2] - 2020-12-01
 
 * Incident.py - can now search by ticket age
