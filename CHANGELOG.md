@@ -8,6 +8,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.4.4] - 2021-12-06
+
+* ticket.py - journal entries now correctly point at journal timestamps, 
+  not the parent ticket timestamp
+* ticket.py - timestamps now convert back to your local time zone from UTC
+  when printed
+
 ## [1.4.3] - 2021-07-06
 
 * Incident.py - changing how we detect resolved tickets.

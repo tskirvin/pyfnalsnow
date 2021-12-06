@@ -35,7 +35,7 @@ def formatDate(string):
     """
 
     d = iso8601.parse_date("%sZ" % string)
-    return d.strftime("%Y-%m-%d %H:%M:%S")
+    return d.astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
 
 def formatText(text, **kwargs):
     """
@@ -215,9 +215,10 @@ def tktStringJournal(tkt):
 
     count = 1
     for i in journals:
+        print(i)
         ret.append('  Entry %s' % count)
         count = count + 1
-        ret.extend(formatTextField('Date', formatDate(tktCreatedOn(tkt)), **depth1))
+        ret.extend(formatTextField('Date', formatDate(i['sys_created_on']), **depth1))
         ret.extend(formatTextField('Created By', i['sys_created_by'], **depth1))
         ret.extend(formatTextField('Type', i['element'], **depth1))
         ret.append('')

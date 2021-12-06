@@ -1,6 +1,6 @@
 Name:           fnal-snow-python
 Summary:        Python Scripts and libraries to interact with Service Now @ FNAL
-Version:        1.4.3
+Version:        1.4.4
 Release:        0%{?dist}
 Group:          Applications/System
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -61,6 +61,10 @@ rm -rf ${RPM_BUILD_ROOT}/usr/bin/.mypy_cache
 %{python3_sitelib}/*egg-info
 
 %changelog
+* Mon Dec  6 2021   Tim Skirvin <tskirvin@fnal.gov> 1.4.4-0
+- ticket.py - fixed journal timestamps, now includes timezone in ticket
+  printing (and that timezone is converted from UTC)
+
 * Tue Jul  6 2021   Tim Skirvin <tskirvin@fnal.gov> 1.4.3-0
 - ticket.py, Incident.py - recognizing 'Cancelled' tickets when printing
   resolutions, and doing a better job of recognizing when tickets are
