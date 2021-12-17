@@ -8,6 +8,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+## [1.4.5] - 2021-12-17
+
+* ticket.py - removing leftover debugging statement, oops
+
 ## [1.4.4] - 2021-12-06
 
 * ticket.py - journal entries now correctly point at journal timestamps, 

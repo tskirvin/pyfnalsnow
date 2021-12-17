@@ -215,7 +215,6 @@ def tktStringJournal(tkt):
 
     count = 1
     for i in journals:
-        print(i)
         ret.append('  Entry %s' % count)
         count = count + 1
         ret.extend(formatTextField('Date', formatDate(i['sys_created_on']), **depth1))
