@@ -1,0 +1,169 @@
+#!/usr/bin/python3
+
+#########################################################################
+### Configuration #######################################################
+#########################################################################
+
+config_file = '/etc/snow/config.yaml'
+
+#########################################################################
+### Declarations ########################################################
+#########################################################################
+
+import pyfnalsnow, pysnow
+import optparse, sys
+
+description = "find unapproved DNS requests in SNOW"
+usage = "%prog [options] subject"
+
+#########################################################################
+### Subroutines #########################################################
+#########################################################################
+
+from pyfnalsnow.ticket import formatTextField, formatDate, tktNumber, tktSummary, tktStatus, tktDateSubmit
+
+def tktStringText(tkt):
+    """
+    """
+    extra = {'minWidth': 20, 'prefix': ''}
+    ret = []
+    ret.extend(formatTextField('Number',  tktNumber(tkt),  **extra))
+    ret.extend(formatTextField('Summary', tktSummary(tkt), **extra))
+    ret.extend(formatTextField('Status',  tktStatus(tkt),  **extra))
+    ret.extend(formatTextField('Submitted', formatDate(tktDateSubmit(tkt)), **extra))
+
+    return ret
+
+#########################################################################
+### main () #############################################################
+#########################################################################
+
+def main():
+    global p
+    p = optparse.OptionParser(usage=usage, description=description)
+    p.add_option('--debug', dest='debug', action='store_true', default=False)
+    p.add_option('--config', dest='config', action='store',
+        default=config_file)
+    p.add_option('--group', dest='group', action='store', default=None)
+    p.add_option('--user', dest='user', action='store', default=None)
+
+    global opt
+    opt, args = p.parse_args()
+
+    if len(args) != 0:
+        p.print_help()
+        sys.exit(-1)
+
+    pyfnalsnow.pyfnalsnow_config(opt.config)
+    snow = pyfnalsnow.connect()
+
+    desc_text = ['open DNS requests']
+    qb = (
+        pysnow.QueryBuilder()
+        .field('GOTOsysapproval.ref_sc_req_item.cat_item.name').contains('Register/Unregister')
+        .AND()
+        .field('state').equals('requested')
+    )
+    if opt.group:
+        qb = qb.AND().field('GOTOapprover.u_department_group').contains(opt.group)
+        desc_text.append('from group %s' % opt.group)
+
+    if opt.user:
+        qb = qb.AND().field('GOTOapprover.user_name').equals(opt.user)
+        desc_text.append('from user %s' % opt.user)
+
+    if opt.debug: print("querying %s" % qb)
+
+    tickets = []
+
+    connection = snow.resource(api_path='/table/sysapproval_approver')
+    response = connection.get(query=qb)
+    for record in response.all():
+        try:
+            id = record['document_id']['value']
+            r = snow.resource(api_path='/table/sc_req_item').get(query={'sys_id': id}, stream=True)
+            for record in r.all():
+                tickets.append(record)
+        except Exception:
+            pass
+
+    ret = []
+    print('== %s ==' % ', '.join(desc_text))
+
+    for tkt in tickets:
+        summary = tktStringText(tkt)
+        if ret: ret.append('')  # add an empty line between entries
+        ret.extend(summary)
+
+    print('\n'.join(ret))
+    sys.exit(0)
+
+if __name__ == '__main__':
+    main()
+
+
+#########################################################################
+### POD Documentation ###################################################
+#########################################################################
+
+"""
+
+=head1 NAME
+
+snow-ritm-dns - find open DNS requests
+
+=head1 SYNOPSIS
+
+B<snow-ritm-dns>
+
+B<snow-ritm-dns> --group 'Service Desk'
+
+B<snow-ritm-dns> --user esimm
+
+B<snow-ritm-dns> --group SSI --user tskirvin
+
+=head1 USAGE
+
+snow-ritm-dns queries Service Now (SNOW) to pull down lists of unapproved
+DNS requests.  This is a fairly complicated query, more-or-less
+corresponding to this:
+
+F<https://fermi.servicenowservices.com/nav_to.do?uri=%2Fsysapproval_approver_list.do%3Fsysparm_query%3DGOTOsysapproval.ref_sc_req_item.cat_item.nameLIKERegister%2FUnregister%255Estate%253Drequested%26sysparm_first_row%3D1%26sysparm_view%3D>
+
+=head1 OPTIONS
+
+=over 4
+
+=item --config CONFIG_FILE
+
+Where should we load our SNOW config data?  Defaults to
+F</etc/snow/config.yaml>.
+
+=item --debug
+
+If set, prints some debugging data.
+
+=item --group I<group>
+
+Query for tickets associated with a given group.  No default.
+
+=item --user I<username>
+
+Query for tickets associated with the given user.  No default.
+
+=back
+
+=head1 AUTHOR
+
+Tim Skirvin <tskirvin@fnal.gov>
+
+=head1 COPYRIGHT
+
+Copyright 2023, Fermi National Accelerator Laboratory
+
+This program is free software; you may redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
+"""
